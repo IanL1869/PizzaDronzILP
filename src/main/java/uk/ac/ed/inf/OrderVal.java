@@ -30,9 +30,15 @@ public class OrderVal implements OrderValidation {
 //    RESTAURANT_CLOSED;
 
 
+    private boolean checkCardDigits(Order orderToValidate){
+
+        return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
+    }
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
         // checking card number is 16 digits
+
+
 
         boolean cardNoDigits = orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
 
@@ -72,10 +78,7 @@ public class OrderVal implements OrderValidation {
 
         //checking total
 
-
-
-        //if (orderToValidate.getPriceTotalInPence() != )
-
+//        if (orderToValidate.getPriceTotalInPence() != order )
 
 
 
