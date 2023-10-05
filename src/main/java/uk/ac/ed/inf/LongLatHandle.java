@@ -21,13 +21,6 @@ public class LongLatHandle implements LngLatHandling {
         return distanceTo(startPosition, otherPosition) < 0.00015;
     }
 
-    @Override
-    public boolean isInCentralArea(LngLat point, NamedRegion centralArea) {
-
-        return LngLatHandling.super.isInCentralArea(point, centralArea);
-
-    }
-
 
 
     @Override
@@ -67,16 +60,9 @@ public class LongLatHandle implements LngLatHandling {
 
         if (angle == 999){
             return startPosition;
-        }else{
+        }else {
             return newPosition;
         }
-
-//        double[] possibleAngle = new double[20];
-//
-//        possibleAngle[0] = 0;
-//
-//
-//        [0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5, 360];
 
     }
 }
