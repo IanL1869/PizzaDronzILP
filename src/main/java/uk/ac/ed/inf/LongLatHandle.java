@@ -45,7 +45,8 @@ public class LongLatHandle implements LngLatHandling {
             LngLat currentVertex = vertices[i];
             LngLat nextVertex = vertices[(i + 1) % vertices.length];
 
-            if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat()) && positionLon < currentVertex.lng() + ((positionLat - currentVertex.lat()))){
+            if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat()) && positionLon < currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()))){
+                count = count + 1;
 
             }
 
