@@ -12,9 +12,59 @@ import uk.ac.ed.inf.ilp.data.Restaurant;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 public class OrderVal implements OrderValidation {
+
+
+    private boolean checkCardDigits(Order orderToValidate){
+
+        return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
+    }
+
+    private boolean checkExpDate(Order orderToValidate){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
+        dateFormat.setLenient(false); // for strict parsing
+
+        // try to convert to type Date
+        try {
+            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
+            Calendar currentDate = Calendar.getInstance();
+            currentDate.set(Calendar.DAY_OF_MONTH, 1);
+
+            // expiry date is before current date then it is invalid
+            if (expiryDate.before(currentDate.getTime())){
+                return false;
+            }
+
+            // if cannot convert then the input is invalid
+        } catch (ParseException e){
+            return false;
+        }
+
+        return true;
+
+    }
+
+    private boolean checkCVV(Order orderToValidate){
+
+        return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{3}");
+
+
+    }
+
+    private boolean checkTotal(Order orderToValidate){
+        int price = Arrays.stream(orderToValidate.getPizzasInOrder()).mapToInt(Pizza::priceInPence).sum();
+
+        return price + 100 == orderToValidate.getPriceTotalInPence();
+    }
+
+    private boolean checkMaxPizza(Order orderToValidate){
+
+        return orderToValidate.getPizzasInOrder().length > 4;
+
+    }
     @Override
 
 
@@ -30,66 +80,10 @@ public class OrderVal implements OrderValidation {
 //    RESTAURANT_CLOSED;
 
 
-    private boolean checkCardDigits(Order orderToValidate){
 
-        return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
-    }
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
-        // checking card number is 16 digits
 
-
-
-        boolean cardNoDigits = orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
-
-        if (!cardNoDigits){
-            orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
-        }
-
-
-        // checking expiry date
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
-        dateFormat.setLenient(false); // for strict parsing
-
-        // try to convert to type Date
-        try {
-            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
-            Calendar currentDate = Calendar.getInstance();
-            currentDate.set(Calendar.DAY_OF_MONTH, 1);
-
-        // expiry date is before current date then it is invalid
-            if (expiryDate.before(currentDate.getTime())){
-                orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
-            }
-
-        // if cannot convert then the input is invalid
-        } catch (ParseException e){
-            orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
-        }
-
-
-        // checking cvv
-        boolean cvvNoDigits = orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{3}");
-        if (!cvvNoDigits){
-            orderToValidate.setOrderValidationCode(OrderValidationCode.CVV_INVALID);
-        }
-
-
-        //checking total
-
-//        if (orderToValidate.getPriceTotalInPence() != order )
-
-
-
-        if (orderToValidate.getPizzasInOrder().length > 4){
-
-            orderToValidate.setOrderValidationCode(OrderValidationCode.MAX_PIZZA_COUNT_EXCEEDED);
-
-        }
-
-
-        
 
 
 

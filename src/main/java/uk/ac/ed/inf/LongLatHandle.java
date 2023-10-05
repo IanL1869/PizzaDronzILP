@@ -50,41 +50,11 @@ public class LongLatHandle implements LngLatHandling {
 
             }
 
+
         }
 
-//        LngLat vertex1 = vertices[0];
-//        LngLat vertex2 = vertices[1];
-//        LngLat vertex3 = vertices[2];
-//        LngLat vertex4 = vertices[4];
-//
-//        boolean checkLat = true;
-//        boolean checkLon = true;
-//
-//        double minLat1 = Math.min(vertex1.lat(), vertex2.lat());
-//        double minLat2 = Math.min(vertex3.lat(), vertex4.lat());
-//        double minLat = Math.min(minLat1,minLat2);
-//
-//        double maxLat1 = Math.max(vertex1.lat(), vertex2.lat());
-//        double maxLat2 = Math.max(vertex3.lat(), vertex4.lat());
-//        double maxLat = Math.max(maxLat1,maxLat2);
-//
-//        double minLon1 = Math.min(vertex1.lng(), vertex2.lng());
-//        double minLon2 = Math.min(vertex3.lng(), vertex4.lng());
-//        double minLon = Math.min(minLon1,minLon2);
-//
-//        double maxLon1 = Math.max(vertex1.lng(), vertex2.lng());
-//        double maxLon2 = Math.max(vertex3.lng(), vertex4.lng());
-//        double maxLon = Math.max(maxLon1,maxLon2);
-//
-//        if (position.lat() < minLat || position.lat() > maxLat) {
-//            checkLat = false;
-//        }
-//
-//        if (position.lng() < minLon || position.lng() > maxLon) {
-//            checkLon = false;
-//        }
-//
-//        return checkLat && checkLon;
+        return count % 2 == 1;
+
     }
 
     @Override
