@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import jdk.vm.ci.meta.Local;
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -18,6 +19,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+
 public class OrderVal implements OrderValidation {
 
 
@@ -27,26 +35,57 @@ public class OrderVal implements OrderValidation {
     }
 
     private boolean checkExpDate(Order orderToValidate){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
-        dateFormat.setLenient(false); // for strict parsing
 
-        // try to convert to type Date
+
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+
         try {
-            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
-            Calendar currentDate = Calendar.getInstance();
-            currentDate.set(Calendar.DAY_OF_MONTH, 1);
 
-            // expiry date is before current date then it is invalid
-            if (expiryDate.before(currentDate.getTime())){
+            String expiryDate =  orderToValidate.getCreditCardInformation().getCreditCardExpiry();
+            LocalDate dateOfOrder = orderToValidate.getOrderDate();
+
+            if (expiryDate.matches("\\d{2}/\\d{2}")) {
+                String[] parts = expiryDate.split("/");
+                int monthValue = Integer.parseInt(parts[0]);
+                Month expiryMonth = Month.of(monthValue);
+
+                LocalDate expiryDateParsed = LocalDate.of(Year.now().getValue(), expiryMonth, 1);
+
+                return !dateOfOrder.isAfter(expiryDateParsed);
+            } else {
+                // Invalid format
                 return false;
             }
 
-            // if cannot convert then the input is invalid
-        } catch (ParseException e){
+
+        }catch (Exception e){
             return false;
         }
-
-        return true;
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
+//        dateFormat.setLenient(false); // for strict parsing
+//
+//        // try to convert to type Date
+//        try {
+//            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
+//            Calendar currentDate = Calendar.getInstance();
+//            currentDate.set(Calendar.DAY_OF_MONTH, 1);
+//
+//            LocalDate dateOfOrder = orderToValidate.getOrderDate();
+//
+//            Date date = Date.valueOf(dateOfOrder);
+//
+//            // expiry date is before current date then it is invalid
+//            if (expiryDate.isBefore(dateOfOrder){
+//                return false;
+//            }
+//
+//            // if cannot convert then the input is invalid
+//        } catch (ParseException e){
+//            return false;
+//        }
+//
+//        return true;
 
     }
 
@@ -57,13 +96,25 @@ public class OrderVal implements OrderValidation {
     }
 
     private boolean checkTotal(Order orderToValidate){
-        int totalPrice = Arrays.stream(orderToValidate.getPizzasInOrder())
-                .mapToInt(Pizza::priceInPence)
-                .sum();
 
-        int expectedTotalPrice = orderToValidate.getPriceTotalInPence() - 100;
+        int countPrice = 0;
+        for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
 
-        return totalPrice == expectedTotalPrice;
+            countPrice = countPrice + orderToValidate.getPizzasInOrder()[j].priceInPence();
+        }
+
+        int totalPrice = orderToValidate.getPriceTotalInPence() - 100;
+
+        return countPrice == totalPrice;
+
+//        int totalPrice = Arrays.stream(orderToValidate.getPizzasInOrder())
+//                .mapToInt(Pizza::priceInPence)
+//                .sum();
+//
+//        int expectedTotalPrice = orderToValidate.getPriceTotalInPence() - 100;
+
+
+//        return totalPrice == expectedTotalPrice;
     }
 
     private boolean checkPizzaDef(Restaurant[] restaurant ,Order orderToValidate){
@@ -161,29 +212,38 @@ public class OrderVal implements OrderValidation {
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
         if(!checkCardDigits(orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
 
         }else if (!checkExpDate(orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
 
         }else if (!checkCVV(orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CVV_INVALID);
 
         }else if (!checkTotal(orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.TOTAL_INCORRECT);
 
         }else if(!checkPizzaDef(definedRestaurants, orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.PIZZA_NOT_DEFINED);
 
         }else if(!checkRestaurantClosure(definedRestaurants , orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.RESTAURANT_CLOSED);
 
         }else if (!checkMaxPizza(orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.MAX_PIZZA_COUNT_EXCEEDED);
 
         }else if (!checkMultiRestaurants(definedRestaurants, orderToValidate)){
+            orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode((OrderValidationCode.PIZZA_FROM_MULTIPLE_RESTAURANTS));
         }else{
+            orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
             orderToValidate.setOrderValidationCode(OrderValidationCode.NO_ERROR);
             return orderToValidate;
 
