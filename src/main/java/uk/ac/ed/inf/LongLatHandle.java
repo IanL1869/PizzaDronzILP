@@ -27,8 +27,6 @@ public class LongLatHandle implements LngLatHandling {
     public boolean isInRegion(LngLat position, NamedRegion region) {
 
         LngLat[] vertices = region.vertices();
-
-
         int count = 0;
         double positionLon = position.lng();
         double positionLat = position.lat();
@@ -38,10 +36,17 @@ public class LongLatHandle implements LngLatHandling {
             LngLat currentVertex = vertices[i];
             LngLat nextVertex = vertices[(i + 1) % vertices.length];
 
-            if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat()) && positionLon < currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()))){
-                count = count + 1;
+            if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat())){
+                double ip = currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()));
+                    if (ip == positionLon){
+                        return true;
+                    }else if (positionLat < ip){
+                        count = count + 1;
 
-            }
+                    }
+
+
+                }
 
 
         }

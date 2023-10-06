@@ -1,6 +1,5 @@
 package uk.ac.ed.inf;
 
-import jdk.vm.ci.meta.Local;
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -147,6 +146,11 @@ public class OrderVal implements OrderValidation {
     }
 
     private boolean checkMultiRestaurants(Restaurant[] restaurant, Order orderToValidate) {
+
+        if (!checkPizzaDef(restaurant, orderToValidate)){
+            return false;
+
+        }
 
         boolean flag = false;
         for (Restaurant value : restaurant) {
