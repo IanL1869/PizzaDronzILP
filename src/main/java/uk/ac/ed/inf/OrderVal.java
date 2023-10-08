@@ -37,7 +37,6 @@ public class OrderVal implements OrderValidation {
 
 
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
 
         try {
 
@@ -66,7 +65,7 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkCVV(Order orderToValidate){
 
-        return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{3}");
+        return orderToValidate.getCreditCardInformation().getCvv().matches("\\d{3}");
 
     }
 
@@ -92,22 +91,28 @@ public class OrderVal implements OrderValidation {
 //        return totalPrice == expectedTotalPrice;
     }
 
+
+
     private boolean checkPizzaDef(Restaurant[] restaurant ,Order orderToValidate){
 
+
+
+
         boolean flag = true;
+        for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
+            boolean foundOnMenu = false;
+            for (Restaurant value : restaurant) {
 
-        for (Restaurant value : restaurant) {
-
-            for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
-
-                if (!Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
-                    flag = false;
-
+                if (Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
+                    foundOnMenu = true;
                     break;
-                };
                 }
-
             }
+            if (!foundOnMenu) {
+                flag = false;
+                break;
+            }
+        }
 
 
         return flag;
@@ -117,18 +122,21 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkMaxPizza(Order orderToValidate){
 
-        return orderToValidate.getPizzasInOrder().length > 4;
+        if (orderToValidate.getPizzasInOrder().length > 4) {
+            return false;
+        }else if (orderToValidate.getPizzasInOrder().length < 1){
+            return false;
+        }
+        return true;
 
     }
 
     private boolean checkMultiRestaurants(Restaurant[] restaurant, Order orderToValidate) {
 
-        if (!checkPizzaDef(restaurant, orderToValidate)){
-            return false;
 
-        }
 
         boolean flag = false;
+
         for (Restaurant value : restaurant) {
 
             if (Arrays.asList(value.menu()).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
