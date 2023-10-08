@@ -61,30 +61,6 @@ public class OrderVal implements OrderValidation {
         }catch (Exception e){
             return false;
         }
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
-//        dateFormat.setLenient(false); // for strict parsing
-//
-//        // try to convert to type Date
-//        try {
-//            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
-//            Calendar currentDate = Calendar.getInstance();
-//            currentDate.set(Calendar.DAY_OF_MONTH, 1);
-//
-//            LocalDate dateOfOrder = orderToValidate.getOrderDate();
-//
-//            Date date = Date.valueOf(dateOfOrder);
-//
-//            // expiry date is before current date then it is invalid
-//            if (expiryDate.isBefore(dateOfOrder){
-//                return false;
-//            }
-//
-//            // if cannot convert then the input is invalid
-//        } catch (ParseException e){
-//            return false;
-//        }
-//
-//        return true;
 
     }
 
@@ -249,10 +225,10 @@ public class OrderVal implements OrderValidation {
         }else{
             orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
             orderToValidate.setOrderValidationCode(OrderValidationCode.NO_ERROR);
-            return orderToValidate;
+
 
         }
 
-        return null;
+        return orderToValidate;
     }
 }
