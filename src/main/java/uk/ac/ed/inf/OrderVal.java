@@ -151,6 +151,10 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkRestaurantClosure(Restaurant[] restaurant, Order orderToValidate){
 
+        if (orderToValidate.getPizzasInOrder().length < 1){
+            return true;
+        }
+
         LocalDate dateOfOrder = orderToValidate.getOrderDate();
         DayOfWeek dayOfOrder = dateOfOrder.getDayOfWeek();
 
