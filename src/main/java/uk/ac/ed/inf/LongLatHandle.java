@@ -1,5 +1,6 @@
 package uk.ac.ed.inf;
 
+import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.interfaces.LngLatHandling;
@@ -18,7 +19,7 @@ public class LongLatHandle implements LngLatHandling {
     @Override
     public boolean isCloseTo(LngLat startPosition, LngLat otherPosition) {
 
-        return distanceTo(startPosition, otherPosition) < 0.00015;
+        return distanceTo(startPosition, otherPosition) < SystemConstants.DRONE_IS_CLOSE_DISTANCE;
     }
 
 
@@ -44,11 +45,7 @@ public class LongLatHandle implements LngLatHandling {
                         count = count + 1;
 
                     }
-
-
                 }
-
-
         }
 
         return count % 2 == 1;
@@ -58,8 +55,8 @@ public class LongLatHandle implements LngLatHandling {
     @Override
     public LngLat nextPosition(LngLat startPosition, double angle) {
 
-        double newLong = 0.00015 * Math.cos(angle) + startPosition.lng();
-        double newLat = 0.00015 * Math.sin(angle) + startPosition.lat();
+        double newLong = SystemConstants.DRONE_MOVE_DISTANCE * Math.cos(angle) + startPosition.lng();
+        double newLat = SystemConstants.DRONE_MOVE_DISTANCE * Math.sin(angle) + startPosition.lat();
 
         LngLat newPosition = new LngLat(newLong, newLat);
 

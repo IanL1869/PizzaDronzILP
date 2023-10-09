@@ -1,6 +1,7 @@
 package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
+import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
@@ -35,9 +36,6 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkExpDate(Order orderToValidate){
 
-
-
-
         try {
 
             String expiryDate =  orderToValidate.getCreditCardInformation().getCreditCardExpiry();
@@ -52,7 +50,6 @@ public class OrderVal implements OrderValidation {
 
                 return !dateOfOrder.isAfter(expiryDateParsed);
             } else {
-                // Invalid format
                 return false;
             }
 
@@ -77,30 +74,21 @@ public class OrderVal implements OrderValidation {
             countPrice = countPrice + orderToValidate.getPizzasInOrder()[j].priceInPence();
         }
 
-        int totalPrice = orderToValidate.getPriceTotalInPence() - 100;
+        int totalPrice = orderToValidate.getPriceTotalInPence() - SystemConstants.ORDER_CHARGE_IN_PENCE;
 
         return countPrice == totalPrice;
-
-//        int totalPrice = Arrays.stream(orderToValidate.getPizzasInOrder())
-//                .mapToInt(Pizza::priceInPence)
-//                .sum();
-//
-//        int expectedTotalPrice = orderToValidate.getPriceTotalInPence() - 100;
-
-
-//        return totalPrice == expectedTotalPrice;
     }
 
 
 
     private boolean checkPizzaDef(Restaurant[] restaurant ,Order orderToValidate){
 
-
-
-
         boolean flag = true;
+
         for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
+
             boolean foundOnMenu = false;
+
             for (Restaurant value : restaurant) {
 
                 if (Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
@@ -114,7 +102,6 @@ public class OrderVal implements OrderValidation {
             }
         }
 
-
         return flag;
 
 
@@ -122,18 +109,11 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkMaxPizza(Order orderToValidate){
 
-        if (orderToValidate.getPizzasInOrder().length > 4) {
-            return false;
-        }else if (orderToValidate.getPizzasInOrder().length < 1){
-            return false;
-        }
-        return true;
+        return orderToValidate.getPizzasInOrder().length <= SystemConstants.MAX_PIZZAS_PER_ORDER;
 
     }
 
     private boolean checkMultiRestaurants(Restaurant[] restaurant, Order orderToValidate) {
-
-
 
         boolean flag = false;
 
@@ -151,16 +131,10 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkRestaurantClosure(Restaurant[] restaurant, Order orderToValidate){
 
-        if (orderToValidate.getPizzasInOrder().length < 1){
-            return true;
-        }
-
         LocalDate dateOfOrder = orderToValidate.getOrderDate();
         DayOfWeek dayOfOrder = dateOfOrder.getDayOfWeek();
 
-
         boolean flag = false;
-
 
         for (Restaurant value : restaurant) {
 
