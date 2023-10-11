@@ -81,7 +81,7 @@ public class LongLatHandle implements LngLatHandling {
 
         }
 
-
+        return startPosition;
 
     }
 }
