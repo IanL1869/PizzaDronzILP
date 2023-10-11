@@ -100,4 +100,29 @@ public class LngLatTests extends TestCase {
         assertFalse(result);
     }
 
+    public void testIsInRegion2(){
+        LngLat position = new LngLat(-3.185242,  55.943000);
+        LngLat[] polyCoords = {new LngLat(-3.186844,  55.946242),
+                new LngLat(-3.186844,  55.942618),
+                new LngLat(-3.185242,  55.942618),
+                new LngLat(-3.185242,  55.946242)};
+        NamedRegion region = new NamedRegion("testRegion", polyCoords);
+        LngLatHandling lngLatHandler = new LongLatHandle();
+        boolean result = lngLatHandler.isInRegion(position, region);
+        assertTrue(result);
+    }
+
+
+    public void testIsInRegion3(){
+        LngLat position = new LngLat(-3.186242,  55.942619);
+        LngLat[] polyCoords = {new LngLat(-3.186844,  55.946242),
+                new LngLat(-3.186844,  55.942618),
+                new LngLat(-3.185242,  55.942618),
+                new LngLat(-3.185242,  55.946242)};
+        NamedRegion region = new NamedRegion("testRegion", polyCoords);
+        LngLatHandling lngLatHandler = new LongLatHandle();
+        boolean result = lngLatHandler.isInRegion(position, region);
+        assertTrue(result);
+    }
+
 }

@@ -36,28 +36,48 @@ public class OrderVal implements OrderValidation {
 
     private boolean checkExpDate(Order orderToValidate){
 
+//        try {
+//
+//            String expiryDate =  orderToValidate.getCreditCardInformation().getCreditCardExpiry();
+//            LocalDate dateOfOrder = orderToValidate.getOrderDate();
+//
+//            if (expiryDate.matches("\\d{2}/\\d{2}")) {
+//                String[] parts = expiryDate.split("/");
+//                int monthValue = Integer.parseInt(parts[0]);
+//                Month expiryMonth = Month.of(monthValue);
+//
+//                LocalDate expiryDateParsed = LocalDate.of(Year.now().getValue(), expiryMonth, 1);
+//
+//                return !dateOfOrder.isAfter(expiryDateParsed);
+//            } else {
+//                return false;
+//            }
+//
+//
+//        }catch (Exception e){
+//            return false;
+//        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
+        dateFormat.setLenient(false); // for strict parsing
+
+        // try to convert to type Date
         try {
+            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
+            Calendar currentDate = Calendar.getInstance();
+            currentDate.set(Calendar.DAY_OF_MONTH, 1);
 
-            String expiryDate =  orderToValidate.getCreditCardInformation().getCreditCardExpiry();
-            LocalDate dateOfOrder = orderToValidate.getOrderDate();
-
-            if (expiryDate.matches("\\d{2}/\\d{2}")) {
-                String[] parts = expiryDate.split("/");
-                int monthValue = Integer.parseInt(parts[0]);
-                Month expiryMonth = Month.of(monthValue);
-
-                LocalDate expiryDateParsed = LocalDate.of(Year.now().getValue(), expiryMonth, 1);
-
-                return !dateOfOrder.isAfter(expiryDateParsed);
-            } else {
+            // expiry date is before current date then it is invalid
+            if (expiryDate.before(currentDate.getTime())){
                 return false;
             }
 
-
-        }catch (Exception e){
+            // if cannot convert then the input is invalid
+        } catch (ParseException e){
             return false;
         }
 
+        return true;
     }
 
     private boolean checkCVV(Order orderToValidate){

@@ -37,15 +37,31 @@ public class LongLatHandle implements LngLatHandling {
             LngLat currentVertex = vertices[i];
             LngLat nextVertex = vertices[(i + 1) % vertices.length];
 
+
+            // case for when position is on a vertex of a region
+            if ((positionLat == currentVertex.lat() && positionLon == currentVertex.lng()) || (positionLat == nextVertex.lat() && positionLon == nextVertex.lng())){
+                return true;
+            }
+
+            // case for rectangle/square top or bottom
+            if ((positionLat == currentVertex.lat() && positionLat == nextVertex.lat()) || (positionLon < currentVertex.lng() && positionLon < nextVertex.lng())){
+                return true;
+            }
+
+
+
             if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat())){
                 double ip = currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()));
-                    if (ip == positionLon){
-                        return true;
-                    }else if (positionLat < ip){
-                        count = count + 1;
+                if (ip == positionLon){
+                    return true;
+                }else if (positionLat <= ip){
+                    count = count + 1;
 
-                    }
                 }
+            }
+
+
+
         }
 
         return count % 2 == 1;
@@ -55,16 +71,17 @@ public class LongLatHandle implements LngLatHandling {
     @Override
     public LngLat nextPosition(LngLat startPosition, double angle) {
 
-        double newLong = SystemConstants.DRONE_MOVE_DISTANCE * Math.cos(angle) + startPosition.lng();
-        double newLat = SystemConstants.DRONE_MOVE_DISTANCE * Math.sin(angle) + startPosition.lat();
+        if (angle % 22.5 == 0){
+            double newLong = SystemConstants.DRONE_MOVE_DISTANCE * Math.cos(angle) + startPosition.lng();
+            double newLat = SystemConstants.DRONE_MOVE_DISTANCE * Math.sin(angle) + startPosition.lat();
+            return new LngLat(newLong, newLat);
 
-        LngLat newPosition = new LngLat(newLong, newLat);
-
-        if (angle == 999){
+        }else if (angle == 999){
             return startPosition;
-        }else {
-            return newPosition;
+
         }
+
+
 
     }
 }
