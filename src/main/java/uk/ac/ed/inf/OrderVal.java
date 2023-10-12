@@ -17,155 +17,159 @@ import java.time.DayOfWeek;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.time.LocalDate;
-
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.Year;
+import java.time.YearMonth;
 
 public class OrderVal implements OrderValidation {
 
-
     private boolean checkCardDigits(Order orderToValidate){
 
+        // return whether card has 16 digits
         return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
+
     }
 
     private boolean checkExpDate(Order orderToValidate){
 
-//        try {
-//
-//            String expiryDate =  orderToValidate.getCreditCardInformation().getCreditCardExpiry();
-//            LocalDate dateOfOrder = orderToValidate.getOrderDate();
-//
-//            if (expiryDate.matches("\\d{2}/\\d{2}")) {
-//                String[] parts = expiryDate.split("/");
-//                int monthValue = Integer.parseInt(parts[0]);
-//                Month expiryMonth = Month.of(monthValue);
-//
-//                LocalDate expiryDateParsed = LocalDate.of(Year.now().getValue(), expiryMonth, 1);
-//
-//                return !dateOfOrder.isAfter(expiryDateParsed);
-//            } else {
-//                return false;
-//            }
-//
-//
-//        }catch (Exception e){
-//            return false;
-//        }
+        // Define desired format
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/yy");
-        dateFormat.setLenient(false); // for strict parsing
+        // get expiry date from card
+        String expiryDate = orderToValidate.getCreditCardInformation().getCreditCardExpiry();
 
-        // try to convert to type Date
-        try {
-            Date expiryDate = dateFormat.parse(orderToValidate.getCreditCardInformation().getCreditCardExpiry());
-            Calendar currentDate = Calendar.getInstance();
-            currentDate.set(Calendar.DAY_OF_MONTH, 1);
+        // check expiry date is in correct form
+        if (expiryDate.matches("^(0[1-9]|1[0-2])/\\d{2}$")){
 
-            // expiry date is before current date then it is invalid
-            if (expiryDate.before(currentDate.getTime())){
-                return false;
-            }
+            // as it is in correct form parse it into format "MM/yy"
+            YearMonth parsedExpDate = YearMonth.parse(expiryDate, formatter);
 
-            // if cannot convert then the input is invalid
-        } catch (ParseException e){
-            return false;
+            // Take it at the end of the month
+            LocalDate expDateEndofMonth = parsedExpDate.atEndOfMonth();
+
+            // get todays date
+            LocalDate currentDate = LocalDate.now();
+
+
+            return !expDateEndofMonth.isBefore(currentDate);
+
         }
 
-        return true;
+        return false;
     }
 
     private boolean checkCVV(Order orderToValidate){
 
+        // returns if 3 digits or not
         return orderToValidate.getCreditCardInformation().getCvv().matches("\\d{3}");
 
     }
 
     private boolean checkTotal(Order orderToValidate){
 
+        // for loop to count the price of all pizzas in order
         int countPrice = 0;
+
         for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
 
+            // update the price count
             countPrice = countPrice + orderToValidate.getPizzasInOrder()[j].priceInPence();
+
         }
 
+        // define the total price recorded in the order and minus the delivery charge
         int totalPrice = orderToValidate.getPriceTotalInPence() - SystemConstants.ORDER_CHARGE_IN_PENCE;
 
+        // return if the two prices match
         return countPrice == totalPrice;
+
     }
-
-
 
     private boolean checkPizzaDef(Restaurant[] restaurant ,Order orderToValidate){
 
         boolean flag = true;
 
+        // loop through the order
         for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
 
+            // use a boolean to identify if a pizza is found on at least one menu
             boolean foundOnMenu = false;
 
+            // nested loop to go through all restaurants
             for (Restaurant value : restaurant) {
 
+                // check that a menu contains a pizza from the order
                 if (Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
-                    foundOnMenu = true;
+
+                    foundOnMenu = true;     // pizza is on menu so set boolean to true and break the nested loop
                     break;
+
                 }
             }
+
             if (!foundOnMenu) {
-                flag = false;
-                break;
+                flag = false;       // if the pizza was never found on any menu then the flag is set to false
+                break;              // break outer loop if this is the case as that pizza is not on any menu
+
             }
         }
 
         return flag;
-
 
     }
 
     private boolean checkMaxPizza(Order orderToValidate){
 
+        // check that there is no more than 4 pizzas in given order
         return orderToValidate.getPizzasInOrder().length <= SystemConstants.MAX_PIZZAS_PER_ORDER;
 
     }
+
 
     private boolean checkMultiRestaurants(Restaurant[] restaurant, Order orderToValidate) {
 
         boolean flag = false;
 
+        // loop through all restaurants
         for (Restaurant value : restaurant) {
 
+            // check that a restaurant menu contains ALL pizzas from one order
             if (Arrays.asList(value.menu()).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
-                flag = true;
+
+                flag = true;    // update flag and break loop if condition is met as we have found the restaurant
                 break;
+
             }
 
         }
 
         return flag;
+
     }
 
+    // function to check if a restaurant is closed on day of an order
     private boolean checkRestaurantClosure(Restaurant[] restaurant, Order orderToValidate){
 
-        LocalDate dateOfOrder = orderToValidate.getOrderDate();
-        DayOfWeek dayOfOrder = dateOfOrder.getDayOfWeek();
+        // get the day of week that an order is placed
+        DayOfWeek dayOfOrder = orderToValidate.getOrderDate().getDayOfWeek();
 
         boolean flag = false;
 
+        // loop through all restaurants
         for (Restaurant value : restaurant) {
 
+            // nested loop to go through all pizzas in order
             for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
 
                 if (Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
 
-                    DayOfWeek[] daysOpen = value.openingDays();
+                    DayOfWeek[] daysOpen = value.openingDays(); // get array that shows weekdays open for restaurant that has that pizza
 
                     if (Arrays.asList(daysOpen).contains(dayOfOrder)) {
-                        flag = true;
+
+                        flag = true;    // if the restaurant contains the day of the week that the order is placed update flag to true
+
                     }
 
                 }
@@ -176,25 +180,9 @@ public class OrderVal implements OrderValidation {
 
         return flag;
 
-
-
     }
+
     @Override
-
-
-//    UNDEFINED,
-//    NO_ERROR,
-//    CARD_NUMBER_INVALID,
-//    EXPIRY_DATE_INVALID,
-//    CVV_INVALID,
-//    TOTAL_INCORRECT,
-//    PIZZA_NOT_DEFINED,
-//    MAX_PIZZA_COUNT_EXCEEDED,
-//    PIZZA_FROM_MULTIPLE_RESTAURANTS,
-//    RESTAURANT_CLOSED;
-
-
-
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
         if(!checkCardDigits(orderToValidate)){
@@ -228,10 +216,10 @@ public class OrderVal implements OrderValidation {
         }else if (!checkMultiRestaurants(definedRestaurants, orderToValidate)){
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode((OrderValidationCode.PIZZA_FROM_MULTIPLE_RESTAURANTS));
+
         }else{
             orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
             orderToValidate.setOrderValidationCode(OrderValidationCode.NO_ERROR);
-
 
         }
 
