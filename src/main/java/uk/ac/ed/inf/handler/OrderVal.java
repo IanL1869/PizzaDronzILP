@@ -1,25 +1,15 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.handler;
 
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
-import uk.ac.ed.inf.ilp.data.CreditCardInformation;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 import uk.ac.ed.inf.ilp.interfaces.OrderValidation;
-
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
-import uk.ac.ed.inf.ilp.data.Pizza;
-import uk.ac.ed.inf.ilp.data.Restaurant;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.YearMonth;
 
 public class OrderVal implements OrderValidation {
@@ -45,10 +35,10 @@ public class OrderVal implements OrderValidation {
             // as it is in correct form parse it into format "MM/yy"
             YearMonth parsedExpDate = YearMonth.parse(expiryDate, formatter);
 
-            // Take it at the end of the month
+            // Take date to be at the end of the month
             LocalDate expDateEndofMonth = parsedExpDate.atEndOfMonth();
 
-            // get todays date
+            // get today's date
             LocalDate currentDate = LocalDate.now();
 
 
@@ -148,7 +138,6 @@ public class OrderVal implements OrderValidation {
 
     }
 
-    // function to check if a restaurant is closed on day of an order
     private boolean checkRestaurantClosure(Restaurant[] restaurant, Order orderToValidate){
 
         // get the day of week that an order is placed
@@ -185,39 +174,50 @@ public class OrderVal implements OrderValidation {
     @Override
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
+        // go through all functions and check for each error. If that error is raised update the corresponding OrderValidationCode and OrderStatus.
         if(!checkCardDigits(orderToValidate)){
+            
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
 
         }else if (!checkExpDate(orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.EXPIRY_DATE_INVALID);
 
         }else if (!checkCVV(orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CVV_INVALID);
 
         }else if (!checkTotal(orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.TOTAL_INCORRECT);
 
         }else if(!checkPizzaDef(definedRestaurants, orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.PIZZA_NOT_DEFINED);
 
         }else if(!checkRestaurantClosure(definedRestaurants , orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.RESTAURANT_CLOSED);
 
         }else if (!checkMaxPizza(orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.MAX_PIZZA_COUNT_EXCEEDED);
 
         }else if (!checkMultiRestaurants(definedRestaurants, orderToValidate)){
+
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode((OrderValidationCode.PIZZA_FROM_MULTIPLE_RESTAURANTS));
 
         }else{
+
+            // no error hit
             orderToValidate.setOrderStatus(OrderStatus.VALID_BUT_NOT_DELIVERED);
             orderToValidate.setOrderValidationCode(OrderValidationCode.NO_ERROR);
 

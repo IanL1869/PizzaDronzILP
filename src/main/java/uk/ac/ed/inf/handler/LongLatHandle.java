@@ -1,4 +1,4 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.handler;
 
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
@@ -49,7 +49,7 @@ public class LongLatHandle implements LngLatHandling {
             if ((positionLat == currentVertex.lat() && positionLon == currentVertex.lng()) || (positionLat == nextVertex.lat() && positionLon == nextVertex.lng())){
                 return true;
 
-                // case for rectangle/square top or bottom
+                // case for rectangle/square top or bottom line
             } else if ((positionLat == currentVertex.lat() && positionLat == nextVertex.lat()) || (positionLon < currentVertex.lng() && positionLon < nextVertex.lng())){
                 return true;
 
@@ -58,12 +58,9 @@ public class LongLatHandle implements LngLatHandling {
 
                 double ip = currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()));
 
-                // case when position is on the border
-                if (ip == positionLon){
-                    return true;
-
                 // ray intersects with edge so increase the count
-                }else if (positionLat <= ip){
+                if (positionLat <= ip){
+
                     count = count + 1;
 
                 }
