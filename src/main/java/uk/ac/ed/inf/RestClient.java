@@ -12,10 +12,13 @@ import java.net.URL;
 
 public class RestClient {
 
-    public static String baseURL = "https://ilp-rest.azurewebsites.net/";
+    private static String baseURL = "https://ilp-rest.azurewebsites.net/";
 
+    private static String url;
 
-
+    public RestClient(String url){
+        this.url = url;
+    }
 
     public static Restaurant[] getRestaurant() throws IOException {
 
@@ -93,6 +96,9 @@ public class RestClient {
     public static void main(String[] args) throws IOException {
         Restaurant[] restaurant = getRestaurant();
 
+        for(Restaurant value: restaurant){
+            System.out.println(value);
+        }
         System.out.println(restaurant);
     }
 
