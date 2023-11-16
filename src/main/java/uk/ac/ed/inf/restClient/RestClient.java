@@ -1,4 +1,4 @@
-package uk.ac.ed.inf;
+package uk.ac.ed.inf.restClient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -12,15 +12,16 @@ import java.net.URL;
 
 public class RestClient {
 
-    private static String baseURL = "https://ilp-rest.azurewebsites.net/";
+    private String baseURL;
+    private String orderDate;
 
-    private static String url;
 
-    public RestClient(String url){
-        this.url = url;
+    public RestClient(String baseURL, String orderDate){
+        this.baseURL = baseURL;
+        this.orderDate = orderDate;
     }
 
-    public static Restaurant[] getRestaurant() throws IOException {
+    public Restaurant[] getRestaurant() throws IOException {
 
 
         ObjectMapper mapper = new ObjectMapper();
@@ -40,7 +41,7 @@ public class RestClient {
     }
 
 
-    public static Order[] getOrders() throws IOException {
+    public Order[] getOrders() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -60,7 +61,7 @@ public class RestClient {
         return orders_list;
     }
 
-    public static NamedRegion getCentralArea() throws IOException{
+    public NamedRegion getCentralArea() throws IOException{
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
@@ -77,7 +78,7 @@ public class RestClient {
         return centralArea;
     }
 
-    public static NamedRegion[] getNoFlyZones() throws IOException{
+    public NamedRegion[] getNoFlyZones() throws IOException{
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -93,13 +94,31 @@ public class RestClient {
 
         return noFlyZones;
     }
-    public static void main(String[] args) throws IOException {
-        Restaurant[] restaurant = getRestaurant();
 
-        for(Restaurant value: restaurant){
-            System.out.println(value);
+    public Order[] getOrdersOnDate() throws IOException{
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+
+        Order[] ordersOnDate;
+
+        try{
+            ordersOnDate = mapper.readValue(new URL (baseURL + "orders" + "/" + orderDate), Order[].class);
+
+        }catch (IOException e){
+            throw new RuntimeException(e);
         }
-        System.out.println(restaurant);
+
+        return ordersOnDate;
+
     }
+//    public void main(String[] args) throws IOException {
+//        Restaurant[] restaurant = getRestaurant();
+//
+//        for(Restaurant value: restaurant){
+//            System.out.println(value);
+//        }
+//        System.out.println(restaurant);
+//    }
 
 }

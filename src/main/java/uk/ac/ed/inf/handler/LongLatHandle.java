@@ -5,6 +5,8 @@ import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.interfaces.LngLatHandling;
 
+import java.util.Arrays;
+
 public class LongLatHandle implements LngLatHandling {
     @Override
     public double distanceTo(LngLat startPosition, LngLat endPosition) {
@@ -27,6 +29,46 @@ public class LongLatHandle implements LngLatHandling {
 
     @Override
     public boolean isInRegion(LngLat position, NamedRegion region) {
+        int count = 0;
+        double xp = position.lng();
+        double yp = position.lat();
+        LngLat[] vertices = region.vertices();
+
+//      Checks each set of edges against the point for intersections
+        for (int i = 0; i < region.vertices().length; i++) {
+
+//          Gets pair of vertices joined by edge
+            double x1 = vertices[i].lng();
+            double y1 = vertices[i].lat();
+
+            double x2 = vertices[(i + 1) % vertices.length].lng();
+            double y2 = vertices[(i + 1) % vertices.length].lat();
+
+//          Checks if point is vertex
+            if (Arrays.asList(vertices).contains(position)) {
+                return true;
+            }
+
+//          Check if point is between equal y values
+            if ((yp == y1 && yp == y2 && ((xp < x1) != (xp < x2)))) {
+                return true;
+            }
+
+//          Raycast
+            if ((yp < y1) != (yp < y2)) {
+                double v = x1 + (((yp - y1) / (y2 - y1)) * (x2 - x1));
+//              If x values are equal
+                if (xp == v) {
+                    return true;
+                } else if (xp < v) {
+                    count++;
+                }
+            }
+        }
+        return count%2==1;
+    }
+
+    public boolean isInRegionT(LngLat position, NamedRegion region) {
 
         // initialsie array of coordinates as the regions vertices
         LngLat[] vertices = region.vertices();

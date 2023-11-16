@@ -4,28 +4,32 @@ import uk.ac.ed.inf.ilp.data.LngLat;
 
 public class Point {
     private double angle;
-    private LngLat currentPoint;
+    private LngLat currentCoordinates;
     private Point previousPoint;
     private double gScore;
     private double hScore;
-    private double costSoFar;
+    private String orderNo;
 
-    public Point(double angle, LngLat cc, Point pc, double gscore, double hscore) {
+    public Point(double angle, LngLat currentCoordinates, Point pc, double gScore, double hScore, String orderNo) {
         this.angle = angle;
-        this.currentPoint = cc;
+        this.currentCoordinates = currentCoordinates;
         this.previousPoint = pc;
-        this.gScore = gscore;
-        this.hScore = hscore;
+        this.gScore = gScore;
+        this.hScore = hScore;
+        this.orderNo = orderNo;
+
+
     }
 
 
-
+    public double getAngle(){return angle;}
+    public void setAngle(double angle){this.angle = angle;}
     public LngLat getLngLat() {
-        return currentPoint;
+        return currentCoordinates;
     }
 
-    public void setCurrentPoint(LngLat currentPoint) {
-        this.currentPoint = currentPoint;
+    public void setCurrentCoordinates(LngLat currentCoordinates) {
+        this.currentCoordinates = currentCoordinates;
     }
 
     public Point getPreviousPoint() {
@@ -43,7 +47,6 @@ public class Point {
     public void setgScore(double gScore) {
         this.gScore = gScore;
     }
-
     public double gethScore() {
         return hScore;
     }
@@ -52,12 +55,10 @@ public class Point {
         this.hScore = hScore;
     }
 
-    public double getCostSoFar() {
-        return costSoFar;
+    public String getOrderNo(){return orderNo;}
+    public void setOrderNo(String orderNo){
+        this.orderNo = orderNo;
     }
 
-    public void setCostSoFar(double costSoFar) {
-        this.costSoFar = costSoFar;
-    }
 }
 

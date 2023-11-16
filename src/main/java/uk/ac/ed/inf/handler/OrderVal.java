@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.HashSet;
 
 public class OrderVal implements OrderValidation {
 
@@ -125,7 +126,7 @@ public class OrderVal implements OrderValidation {
         for (Restaurant value : restaurant) {
 
             // check that a restaurant menu contains ALL pizzas from one order
-            if (Arrays.asList(value.menu()).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
+            if (new HashSet<>(Arrays.asList(value.menu())).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
 
                 flag = true;    // update flag and break loop if condition is met as we have found the restaurant
                 break;
@@ -225,4 +226,5 @@ public class OrderVal implements OrderValidation {
 
         return orderToValidate;
     }
+
 }
