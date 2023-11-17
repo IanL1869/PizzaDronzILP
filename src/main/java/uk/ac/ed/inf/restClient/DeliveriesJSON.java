@@ -4,10 +4,10 @@ import uk.ac.ed.inf.ilp.gsonUtils.LocalDateSerializer;
 
 public class DeliveriesJSON {
 
-    private String orderNo;
-    private String orderStatus;
-    private String orderValidationCode;
-    private int costInPence;
+    public String orderNo;
+    public String orderStatus;
+    public String orderValidationCode;
+    public int costInPence;
 
     // Constructors, getters, setters, and other methods
 

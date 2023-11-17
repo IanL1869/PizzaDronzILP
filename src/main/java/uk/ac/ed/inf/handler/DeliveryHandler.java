@@ -1,7 +1,6 @@
 package uk.ac.ed.inf.handler;
 import uk.ac.ed.inf.ilp.constant.OrderStatus;
 import uk.ac.ed.inf.ilp.constant.OrderValidationCode;
-import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.data.Order;
@@ -13,10 +12,6 @@ import uk.ac.ed.inf.restClient.WriteFiles;
 
 import java.io.IOException;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +21,8 @@ public class DeliveryHandler {
 
     private String baseURL;
     private String orderDate;
+    private RestClient restClient;
+
 
 
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
@@ -33,6 +30,78 @@ public class DeliveryHandler {
     public DeliveryHandler(String baseURL, String orderDate) throws IOException {
         this.baseURL = baseURL;
         this.orderDate = orderDate;
+        this.restClient = new RestClient(baseURL, orderDate);
+    }
+
+    public List<Order> getValidDeliveries() throws IOException {
+        RestClient restClient = new RestClient(baseURL, orderDate);
+        Restaurant[] restaurants = restClient.getRestaurants();
+        Order[] orders = restClient.getOrdersOnDate();
+
+        List<Order> validatedDeliveries = new ArrayList<>();
+
+        for (Order order : orders) {
+
+            OrderVal orderToValidate = new OrderVal();
+            orderToValidate.validateOrder(order, restaurants);
+
+            if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
+
+                validatedDeliveries.add(order);
+
+            }
+        }
+
+        return validatedDeliveries;
+    }
+
+
+    public List<Point> getFlightPaths() throws IOException {
+
+        Restaurant[] restaurants = restClient.getRestaurants();
+        NamedRegion[] noFlyZones = restClient.getNoFlyZones();
+        NamedRegion centralArea = restClient.getCentralArea();
+
+        List<Order> validOrders = getValidDeliveries();
+        List<Point> flightPaths = new ArrayList<>();
+
+
+        for (Order order: validOrders){
+
+
+            Restaurant restaurant = getRestaurant(order, restaurants);
+
+            if(restaurant != null && order.getOrderNo() != null){
+
+                PathFinder pathFinderToRest = new PathFinder(
+                        order.getOrderNo(),
+                        appletonTower,
+                        restaurant.location(),
+                        noFlyZones,
+                        centralArea
+                );
+
+                flightPaths.addAll(pathFinderToRest.aStar());
+
+                order.setOrderStatus(OrderStatus.DELIVERED);
+
+                PathFinder pathFinderToAppleton = new PathFinder(
+                        order.getOrderNo(),
+                        restaurant.location(),
+                        appletonTower,
+                        noFlyZones,
+                        centralArea
+                );
+
+                flightPaths.addAll(pathFinderToAppleton.aStar());
+
+            }
+
+
+        }
+
+        return flightPaths;
+
     }
 
 
@@ -40,48 +109,13 @@ public class DeliveryHandler {
 
         if (validatedOrder.getOrderStatus().equals(OrderStatus.VALID_BUT_NOT_DELIVERED)){
             for(Restaurant restaurant: restaurants){
+
                 if (Arrays.asList(restaurant.menu()).contains(validatedOrder.getPizzasInOrder()[0])){
                     return restaurant;
                 }
             }
         }
-
         return null;
-
-
-    }
-
-    public void getDelivery() throws IOException {
-
-        RestClient restClient = new RestClient(baseURL, orderDate);
-        Restaurant[] restaurants = restClient.getRestaurant();
-        NamedRegion[] noFlyZones = restClient.getNoFlyZones();
-        NamedRegion centralArea = restClient.getCentralArea();
-        Order[] orders = restClient.getOrdersOnDate();
-
-        List<Order> validatedOrders = new ArrayList<>();
-
-        for (Order order : orders) {
-
-            OrderVal orderToValidate = new OrderVal();
-            orderToValidate.validateOrder(order, restaurants);
-
-            if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)){
-
-                validatedOrders.add(order);
-
-                Restaurant restaurant = getRestaurant(order, restaurants);
-
-                PathFinder pathToRestaurant = new PathFinder(order.getOrderNo(),appletonTower, restaurant.location(), noFlyZones, centralArea);
-                List<Point> reconPathToRest = pathToRestaurant.aStar();
-                order.setOrderStatus(OrderStatus.DELIVERED);
-
-                PathFinder pathToAppleton = new PathFinder(order.getOrderNo(), restaurant.location(),appletonTower,noFlyZones,centralArea);
-
-            }
-
-
-        }
 
 
     }

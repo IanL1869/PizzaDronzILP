@@ -3,6 +3,7 @@ package uk.ac.ed.inf.restClient;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.pathfinder.Point;
 
@@ -16,36 +17,39 @@ public class WriteFiles {
 
     private List<Point> flightpaths;
     private String orderDate;
-    private Order[] orders;
+    private List<Order> orders;
 
-    public WriteFiles(Order[] orders, String orderDate, List<Point> flightpaths){
+    public WriteFiles(List<Order> orders, String orderDate, List<Point> flightpaths){
         this.orders = orders;
         this.orderDate = orderDate;
         this.flightpaths = flightpaths;
+        File theDir = new File("resultfiles");
+        if (!theDir.exists()){
+            theDir.mkdirs();
+        }
     }
     public void writeFlightPath(){
 
         try{
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("resultfiles/flightpath" + orderDate + ".json");
-            for(Point flightpath: flightpaths){
-                FlightpathJSON flightpathJSON = new FlightpathJSON(
-                        flightpath.getOrderNo(),
-                        flightpath.getPreviousPoint().getLngLat().lng(),
-                        flightpath.getPreviousPoint().getLngLat().lat(),
-                        flightpath.getAngle(),
-                        flightpath.getLngLat().lng(),
-                        flightpath.getLngLat().lat()
-                );
+            File file = new File("resultfiles/flightpath-" + orderDate + ".json");
 
-                mapper.writeValue(new FileWriter(file, true), flightpathJSON);
+            for(Point flightpath: flightpaths){
+                if (flightpath.getPreviousPoint() != null){
+                    FlightpathJSON flightpathJSON = new FlightpathJSON(
+                            flightpath.getOrderNo(),
+                            flightpath.getPreviousPoint().getLngLat().lng(),
+                            flightpath.getPreviousPoint().getLngLat().lat(),
+                            flightpath.getAngle(),
+                            flightpath.getLngLat().lng(),
+                            flightpath.getLngLat().lat()
+                    );
+                    mapper.writeValue(new FileWriter(file), flightpathJSON);
+                }
+
 
             }
 
-        } catch (StreamWriteException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -55,7 +59,7 @@ public class WriteFiles {
 
         try{
             ObjectMapper mapper = new ObjectMapper();
-            File file = new File("resultfiles/deliveries" + orderDate + ".json");
+            File file = new File("resultfiles/deliveries-" + orderDate + ".json");
 
             for(Order order: orders) {
                 DeliveriesJSON deliveriesJSON = new DeliveriesJSON(
@@ -65,19 +69,31 @@ public class WriteFiles {
                         order.getPriceTotalInPence()
                 );
 
-                mapper.writeValue(new FileWriter(file, true), deliveriesJSON);
+                mapper.writeValue(new FileWriter(file), deliveriesJSON);
 
             }
-        } catch (StreamWriteException e) {
-            throw new RuntimeException(e);
-        } catch (DatabindException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
+
             throw new RuntimeException(e);
         }
 
 
     }
+
+//    public void writeGeoJson(){
+//        try{
+//            ObjectMapper mapper = new ObjectMapper();
+//            File file = new File("resultfiles/drone-" + orderDate + ".geojson");
+//
+//            for(Point flightpath : flightpaths){
+//
+//                LngLat lngLat = new LngLat(flightpath.getLngLat().lng(), flightpath.getLngLat().lat());
+//                mapper
+//
+//
+//            }
+
+
 
 
 }

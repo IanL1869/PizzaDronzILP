@@ -7,7 +7,6 @@ import uk.ac.ed.inf.ilp.data.NamedRegion;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RestClient {
@@ -21,7 +20,7 @@ public class RestClient {
         this.orderDate = orderDate;
     }
 
-    public Restaurant[] getRestaurant() throws IOException {
+    public Restaurant[] getRestaurants() throws IOException {
 
 
         ObjectMapper mapper = new ObjectMapper();

@@ -23,7 +23,6 @@ public class PathFinder {
 
 
 
-
     public PathFinder(String orderNo, LngLat start, LngLat end, NamedRegion[] noFlyZones, NamedRegion centralArea) {
         this.orderNo = orderNo;
         this.start = start;
@@ -53,7 +52,6 @@ public class PathFinder {
         while (!frontier.isEmpty()) {
 
             Point currentPoint = frontier.poll();
-            System.out.println("[" + currentPoint.getLngLat().lng() + "," + currentPoint.getLngLat().lat() + "],");
             visitedPoints.add(currentPoint.getLngLat());
 
             if (LLhandle.isCloseTo(currentPoint.getLngLat(), end)) {

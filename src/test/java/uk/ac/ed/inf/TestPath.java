@@ -25,7 +25,7 @@ public class TestPath {
 
 //        LongLatHandle handle = new LongLatHandle();
 //
-        RestClient restClient = new RestClient("https://ilp-rest.azurewebsites.net/");
+        RestClient restClient = new RestClient("https://ilp-rest.azurewebsites.net/", "2023-09-18");
         NamedRegion centralArea = restClient.getCentralArea();
         Order[] orders = restClient.getOrders();
         NamedRegion[] noFlyZones = restClient.getNoFlyZones();

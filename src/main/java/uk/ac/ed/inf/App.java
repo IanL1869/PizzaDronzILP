@@ -1,8 +1,7 @@
 package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.handler.DeliveryHandler;
-import uk.ac.ed.inf.ilp.constant.OrderStatus;
-import uk.ac.ed.inf.restClient.RestClient;
+import uk.ac.ed.inf.restClient.WriteFiles;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,10 +19,11 @@ public class App
 
 
 
-    public static void main( String[] args ) throws IOException {
 
-        String orderDate = args[0];
-        String baseURL = args[1];
+    public static void main(String[] args ) throws IOException {
+
+        String orderDate = "2023-09-01";
+        String baseURL ="https://ilp-rest.azurewebsites.net/";
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -40,8 +40,8 @@ public class App
         }
 
         DeliveryHandler deliveryHandler = new DeliveryHandler(baseURL, orderDate);
-
-
-
+        WriteFiles writeFiles = new WriteFiles(deliveryHandler.getValidDeliveries(), orderDate, deliveryHandler.getFlightPaths());
+        writeFiles.writeDeliveries();
+        writeFiles.writeFlightPath();
     }
 }
