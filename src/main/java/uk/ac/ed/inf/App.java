@@ -40,8 +40,6 @@ public class App
         }
 
         DeliveryHandler deliveryHandler = new DeliveryHandler(baseURL, orderDate);
-        WriteFiles writeFiles = new WriteFiles(deliveryHandler.getValidDeliveries(), orderDate, deliveryHandler.getFlightPaths());
-        writeFiles.writeDeliveries();
-        writeFiles.writeFlightPath();
+        deliveryHandler.filesWriter();
     }
 }

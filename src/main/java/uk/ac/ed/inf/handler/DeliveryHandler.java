@@ -46,7 +46,7 @@ public class DeliveryHandler {
             orderToValidate.validateOrder(order, restaurants);
 
             if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
-
+                order.setOrderStatus(OrderStatus.DELIVERED);
                 validatedDeliveries.add(order);
 
             }
@@ -83,7 +83,7 @@ public class DeliveryHandler {
 
                 flightPaths.addAll(pathFinderToRest.aStar());
 
-                order.setOrderStatus(OrderStatus.DELIVERED);
+
 
                 PathFinder pathFinderToAppleton = new PathFinder(
                         order.getOrderNo(),
@@ -107,7 +107,7 @@ public class DeliveryHandler {
 
     public Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){
 
-        if (validatedOrder.getOrderStatus().equals(OrderStatus.VALID_BUT_NOT_DELIVERED)){
+        if (validatedOrder.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)){
             for(Restaurant restaurant: restaurants){
 
                 if (Arrays.asList(restaurant.menu()).contains(validatedOrder.getPizzasInOrder()[0])){
@@ -118,5 +118,11 @@ public class DeliveryHandler {
         return null;
 
 
+    }
+
+    public void filesWriter() throws IOException {
+        WriteFiles writeFiles = new WriteFiles(getValidDeliveries(), orderDate, getFlightPaths());
+        writeFiles.writeFlightPath();
+        writeFiles.writeDeliveries();
     }
 }

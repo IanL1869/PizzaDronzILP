@@ -10,6 +10,7 @@ import uk.ac.ed.inf.pathfinder.Point;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WriteFiles {
@@ -34,6 +35,8 @@ public class WriteFiles {
             ObjectMapper mapper = new ObjectMapper();
             File file = new File("resultfiles/flightpath-" + orderDate + ".json");
 
+            List<FlightpathJSON> flightpathJSONS = new ArrayList<>();
+
             for(Point flightpath: flightpaths){
                 if (flightpath.getPreviousPoint() != null){
                     FlightpathJSON flightpathJSON = new FlightpathJSON(
@@ -44,11 +47,14 @@ public class WriteFiles {
                             flightpath.getLngLat().lng(),
                             flightpath.getLngLat().lat()
                     );
-                    mapper.writeValue(new FileWriter(file), flightpathJSON);
+
+                    flightpathJSONS.add(flightpathJSON);
+
                 }
 
 
             }
+            mapper.writeValue(new FileWriter(file), flightpathJSONS);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -61,6 +67,8 @@ public class WriteFiles {
             ObjectMapper mapper = new ObjectMapper();
             File file = new File("resultfiles/deliveries-" + orderDate + ".json");
 
+            List<DeliveriesJSON> deliveriesJSONS = new ArrayList<>();
+
             for(Order order: orders) {
                 DeliveriesJSON deliveriesJSON = new DeliveriesJSON(
                         order.getOrderNo(),
@@ -68,10 +76,10 @@ public class WriteFiles {
                         order.getOrderValidationCode().toString(),
                         order.getPriceTotalInPence()
                 );
-
-                mapper.writeValue(new FileWriter(file), deliveriesJSON);
+                deliveriesJSONS.add(deliveriesJSON);
 
             }
+            mapper.writeValue(new FileWriter(file), deliveriesJSONS);
         } catch (IOException e) {
 
             throw new RuntimeException(e);
