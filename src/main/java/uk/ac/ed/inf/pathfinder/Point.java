@@ -10,10 +10,10 @@ public class Point {
     private double hScore;
     private String orderNo;
 
-    public Point(double angle, LngLat currentCoordinates, Point pc, double gScore, double hScore, String orderNo) {
+    public Point(double angle, LngLat currentCoordinates, Point previousPoint, double gScore, double hScore, String orderNo) {
         this.angle = angle;
         this.currentCoordinates = currentCoordinates;
-        this.previousPoint = pc;
+        this.previousPoint = previousPoint;
         this.gScore = gScore;
         this.hScore = hScore;
         this.orderNo = orderNo;

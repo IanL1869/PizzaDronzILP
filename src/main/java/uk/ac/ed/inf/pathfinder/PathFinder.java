@@ -41,7 +41,15 @@ public class PathFinder {
         }
 
         PriorityQueue<Point> frontier = new PriorityQueue<>(Comparator.comparingDouble(point -> point.getgScore() + point.gethScore()));
-        Point startPoint = new Point(0, start , null , 0, LLhandle.distanceTo(start, end), orderNo);
+        Point startPoint = new Point(
+                0,
+                start ,
+                null ,
+                0,
+                LLhandle.distanceTo(start, end),
+                orderNo
+        );
+
         frontier.add(startPoint);
 
         Set<LngLat> visitedPoints = new HashSet<>();
@@ -69,7 +77,6 @@ public class PathFinder {
                 }
 
 
-                //gScoreValues.put(neighbour.getCurrentPoint(), neighbour);
 
                 if (gScoreValues.containsKey(neighbour.getLngLat())) {
 
@@ -104,13 +111,18 @@ public class PathFinder {
         for(double angle: angles){
             LngLat neighbourLngLat = LLhandle.nextPosition(currentLngLat, angle);
 
-//            Point neighbour = new Point(null, currentPoint, 0, 0);
-//            neighbour.setCurrentPoint(LLhandle.nextPosition(currentLngLat, angle));
-
 
             if (validateNeighbour(neighbourLngLat, currentLngLat)){
 
-                Point neighbour = new Point(angle, neighbourLngLat, currentPoint, currentPoint.getgScore() + SystemConstants.DRONE_MOVE_DISTANCE, LLhandle.distanceTo(neighbourLngLat, end), orderNo );
+                Point neighbour = new Point(
+                        angle,
+                        neighbourLngLat,
+                        currentPoint,
+                        currentPoint.getgScore() + SystemConstants.DRONE_MOVE_DISTANCE,
+                        LLhandle.distanceTo(neighbourLngLat, end),
+                        orderNo
+                );
+
                 neighbours.add(neighbour);
             }
         }

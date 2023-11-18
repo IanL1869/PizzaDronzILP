@@ -7,6 +7,8 @@ import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.ilp.data.Restaurant;
 import uk.ac.ed.inf.pathfinder.PathFinder;
 import uk.ac.ed.inf.pathfinder.Point;
+import uk.ac.ed.inf.restClient.DeliveriesJSON;
+import uk.ac.ed.inf.restClient.FlightpathJSON;
 import uk.ac.ed.inf.restClient.RestClient;
 import uk.ac.ed.inf.restClient.WriteFiles;
 
@@ -22,7 +24,7 @@ public class DeliveryHandler {
     private String baseURL;
     private String orderDate;
     private RestClient restClient;
-
+    private List<Order> validOrders = new ArrayList<>();
 
 
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
@@ -33,12 +35,13 @@ public class DeliveryHandler {
         this.restClient = new RestClient(baseURL, orderDate);
     }
 
-    public List<Order> getValidDeliveries() throws IOException {
+    public List<DeliveriesJSON> getValidDeliveries() throws IOException {
         RestClient restClient = new RestClient(baseURL, orderDate);
         Restaurant[] restaurants = restClient.getRestaurants();
         Order[] orders = restClient.getOrdersOnDate();
 
-        List<Order> validatedDeliveries = new ArrayList<>();
+
+        List<DeliveriesJSON> validatedDeliveries = new ArrayList<>();
 
         for (Order order : orders) {
 
@@ -47,8 +50,16 @@ public class DeliveryHandler {
 
             if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
                 order.setOrderStatus(OrderStatus.DELIVERED);
-                validatedDeliveries.add(order);
 
+                validOrders.add(order);
+
+                DeliveriesJSON orderJSON = new DeliveriesJSON(
+                        order.getOrderNo(),
+                        order.getOrderStatus().toString(),
+                        order.getOrderValidationCode().toString(),
+                        order.getPriceTotalInPence()
+                );
+                validatedDeliveries.add(orderJSON);
             }
         }
 
@@ -62,12 +73,12 @@ public class DeliveryHandler {
         NamedRegion[] noFlyZones = restClient.getNoFlyZones();
         NamedRegion centralArea = restClient.getCentralArea();
 
-        List<Order> validOrders = getValidDeliveries();
+
         List<Point> flightPaths = new ArrayList<>();
 
 
-        for (Order order: validOrders){
 
+        for (Order order: validOrders){
 
             Restaurant restaurant = getRestaurant(order, restaurants);
 
@@ -81,8 +92,8 @@ public class DeliveryHandler {
                         centralArea
                 );
 
-                flightPaths.addAll(pathFinderToRest.aStar());
 
+                flightPaths.addAll(pathFinderToRest.aStar());
 
 
                 PathFinder pathFinderToAppleton = new PathFinder(
@@ -100,6 +111,7 @@ public class DeliveryHandler {
 
         }
 
+        validOrders = new ArrayList<>();
         return flightPaths;
 
     }
@@ -124,5 +136,6 @@ public class DeliveryHandler {
         WriteFiles writeFiles = new WriteFiles(getValidDeliveries(), orderDate, getFlightPaths());
         writeFiles.writeFlightPath();
         writeFiles.writeDeliveries();
+        writeFiles.writeGeoJson();
     }
 }

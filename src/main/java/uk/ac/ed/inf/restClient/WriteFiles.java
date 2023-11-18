@@ -3,6 +3,9 @@ package uk.ac.ed.inf.restClient;
 import com.fasterxml.jackson.core.exc.StreamWriteException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.pathfinder.Point;
@@ -13,15 +16,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import org.geojson.Feature;
+import org.geojson.FeatureCollection;
+import org.geojson.LineString;
+import org.geojson.LngLatAlt;
+
+import com.mapbox.geojson.*;
+
+
+
 public class WriteFiles {
 
 
     private List<Point> flightpaths;
     private String orderDate;
-    private List<Order> orders;
+    private List<DeliveriesJSON> deliveriesJSON;
 
-    public WriteFiles(List<Order> orders, String orderDate, List<Point> flightpaths){
-        this.orders = orders;
+    public WriteFiles(List<DeliveriesJSON> deliveriesJSON, String orderDate, List<Point> flightpaths){
+        this.deliveriesJSON = deliveriesJSON;
         this.orderDate = orderDate;
         this.flightpaths = flightpaths;
         File theDir = new File("resultfiles");
@@ -67,41 +82,128 @@ public class WriteFiles {
             ObjectMapper mapper = new ObjectMapper();
             File file = new File("resultfiles/deliveries-" + orderDate + ".json");
 
-            List<DeliveriesJSON> deliveriesJSONS = new ArrayList<>();
-
-            for(Order order: orders) {
-                DeliveriesJSON deliveriesJSON = new DeliveriesJSON(
-                        order.getOrderNo(),
-                        order.getOrderStatus().toString(),
-                        order.getOrderValidationCode().toString(),
-                        order.getPriceTotalInPence()
-                );
-                deliveriesJSONS.add(deliveriesJSON);
-
-            }
-            mapper.writeValue(new FileWriter(file), deliveriesJSONS);
+            mapper.writeValue(new FileWriter(file), deliveriesJSON);
         } catch (IOException e) {
 
             throw new RuntimeException(e);
         }
 
+    }
+
+    public void writeGeoJson() {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectNode featureCollection = mapper.createObjectNode();
+        featureCollection.put("type", "FeatureCollection");
+        ArrayNode features = mapper.createArrayNode();
+        ObjectNode feature = mapper.createObjectNode();
+        feature.put("type", "Feature");
+
+        ObjectNode geometry = mapper.createObjectNode();
+        geometry.put("type", "LineString");
+
+        ArrayNode coordinates = mapper.createArrayNode();
+
+        for(Point flightpath: flightpaths){
+            ArrayNode coordinate = mapper.createArrayNode();
+            coordinate.add(flightpath.getLngLat().lng());
+            coordinate.add(flightpath.getLngLat().lat());
+            coordinates.add(coordinate);
+        }
+
+        geometry.set("coordinates", coordinates);
+        feature.set("geometry", geometry);
+        features.add(feature);
+
+        featureCollection.set("features", features);
+        File file = new File("resultfiles/drone-" + orderDate + ".geojson");
+        try {
+            mapper.writeValue(new FileWriter(file), featureCollection);
+        } catch (IOException e) {
+
+            throw new RuntimeException(e);
+        }
 
     }
 
-//    public void writeGeoJson(){
-//        try{
-//            ObjectMapper mapper = new ObjectMapper();
-//            File file = new File("resultfiles/drone-" + orderDate + ".geojson");
-//
-//            for(Point flightpath : flightpaths){
-//
-//                LngLat lngLat = new LngLat(flightpath.getLngLat().lng(), flightpath.getLngLat().lat());
-//                mapper
+//        List<LngLatAlt> coordinates = new ArrayList<>();
 //
 //
-//            }
+//        for (Point flightPath: flightpaths){
+//            coordinates.add(new LngLatAlt(flightPath.getLngLat().lng(), flightPath.getLngLat().lat()));
+//
+//        }
+//
+//        LineString lineString = new LineString();
+//        lineString.setCoordinates(coordinates);
+//
+//        Feature feature = new Feature();
+//        feature.setGeometry(lineString);
+//
+//        FeatureCollection featureCollection = new FeatureCollection();
+//        featureCollection.add(feature);
 
 
+//        JSONObject featureCollection = new JSONObject();
+//        JSONArray features = new JSONArray();
+//        JSONObject feature = new JSONObject();
+//        JSONObject geometry = new JSONObject();
+//        JSONArray coordinates = new JSONArray();
 
+//        var featuresList = new ArrayList<>();
+//        var flightPath = new ArrayList<LngLat>(flightpaths.size());
+//
+//        for(Point move : flightpaths){
+//            flightPath.add(move.getLngLat());
+
+
+        //}
+
+
+//        try{ FileWriter filewriter = new FileWriter("resultfiles/drone-" + date + ".geojson");
+//            filewriter.write(FeatureCollection.fromFeatures(Feature.fromGeometry(LineString.fromLngLats(coordinates))).toJson();
+//
+//            filewriter.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+
+//        JSONObject featureCollection = new JSONObject();
+//
+//
+//        JSONArray features = new JSONArray();  // Correct key is "features"
+//
+//        JSONObject feature = new JSONObject();
+//
+//        features.put(feature);  // Add the Feature to the "features" array
+//
+//        JSONObject geometry = new JSONObject();
+//
+//
+//        JSONArray coordinates = new JSONArray();
+//
+//        for (Point flightpath : flightpaths) {
+//            coordinates.put(new JSONArray().put(flightpath.getLngLat().lng()).put(flightpath.getLngLat().lat()));
+//        }
+//
+//        geometry.put("coordinates", coordinates);
+//        feature.put("geometry", geometry);
+//
+//        featureCollection.put("features", features);  // Correct key is "features"
+//        geometry.put("type", "LineString");
+//
+//        feature.put("type", "Feature");
+//        featureCollection.put("type", "FeatureCollection");
+//
+//
+//
+//        try (FileWriter fileWriter = new FileWriter("resultfiles/drone-" + orderDate + ".geojson")) {
+//            fileWriter.write(featureCollection.toString());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

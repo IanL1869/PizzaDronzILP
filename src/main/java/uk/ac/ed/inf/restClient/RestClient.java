@@ -40,24 +40,22 @@ public class RestClient {
     }
 
 
-    public Order[] getOrders() throws IOException {
+    public Order[] getOrdersOnDate() throws IOException{
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
-        Order[] orders_list;
+        Order[] ordersOnDate;
 
-        try {
-            orders_list = mapper.readValue(new URL(baseURL + "orders"), Order[].class);
+        try{
+            ordersOnDate = mapper.readValue(new URL (baseURL + "orders" + "/" + orderDate), Order[].class);
 
-
-        } catch (IOException e){
-
+        }catch (IOException e){
             throw new RuntimeException(e);
-
         }
 
-        return orders_list;
+        return ordersOnDate;
+
     }
 
     public NamedRegion getCentralArea() throws IOException{
@@ -94,23 +92,7 @@ public class RestClient {
         return noFlyZones;
     }
 
-    public Order[] getOrdersOnDate() throws IOException{
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
-        Order[] ordersOnDate;
-
-        try{
-            ordersOnDate = mapper.readValue(new URL (baseURL + "orders" + "/" + orderDate), Order[].class);
-
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
-
-        return ordersOnDate;
-
-    }
 //    public void main(String[] args) throws IOException {
 //        Restaurant[] restaurant = getRestaurant();
 //
