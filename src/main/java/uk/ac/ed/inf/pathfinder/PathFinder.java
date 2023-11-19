@@ -3,6 +3,7 @@ import uk.ac.ed.inf.handler.LongLatHandle;
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
+import uk.ac.ed.inf.restClient.FlightpathJSON;
 
 
 import java.util.*;
@@ -17,7 +18,8 @@ public class PathFinder {
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
 
 
-//    private boolean leftCentralArea = false;
+
+    //    private boolean leftCentralArea = false;
     private boolean returnedToCentralArea = false;
     private boolean returningToAppleton = false;
 

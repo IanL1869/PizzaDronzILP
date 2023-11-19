@@ -1,13 +1,8 @@
 package uk.ac.ed.inf.restClient;
 
-import com.fasterxml.jackson.core.exc.StreamWriteException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import uk.ac.ed.inf.ilp.data.LngLat;
-import uk.ac.ed.inf.ilp.data.Order;
 import uk.ac.ed.inf.pathfinder.Point;
 
 import java.io.File;
@@ -15,17 +10,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import org.geojson.Feature;
-import org.geojson.FeatureCollection;
-import org.geojson.LineString;
-import org.geojson.LngLatAlt;
-
-import com.mapbox.geojson.*;
-
 
 
 public class WriteFiles {
@@ -118,6 +102,7 @@ public class WriteFiles {
 
         featureCollection.set("features", features);
         File file = new File("resultfiles/drone-" + orderDate + ".geojson");
+
         try {
             mapper.writeValue(new FileWriter(file), featureCollection);
         } catch (IOException e) {

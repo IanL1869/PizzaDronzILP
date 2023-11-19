@@ -18,4 +18,20 @@ public class FlightpathJSON {
         this.toLatitude = toLatitude;
 
     }
+
+    public double getFromLatitude() {
+        return fromLatitude;
+    }
+
+    public double getFromLongitude() {
+        return fromLongitude;
+    }
+
+    public double getToLatitude() {
+        return toLatitude;
+    }
+
+    public double getToLongitude() {
+        return toLongitude;
+    }
 }

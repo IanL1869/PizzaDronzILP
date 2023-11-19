@@ -14,9 +14,7 @@ import uk.ac.ed.inf.restClient.WriteFiles;
 
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 public class DeliveryHandler {
@@ -25,6 +23,7 @@ public class DeliveryHandler {
     private String orderDate;
     private RestClient restClient;
     private List<Order> validOrders = new ArrayList<>();
+    private Map<LngLatPair, List<Point>> cachedPaths = new HashMap<>();
 
 
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
@@ -51,6 +50,7 @@ public class DeliveryHandler {
             if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
                 order.setOrderStatus(OrderStatus.DELIVERED);
 
+
                 validOrders.add(order);
 
                 DeliveriesJSON orderJSON = new DeliveriesJSON(
@@ -76,35 +76,46 @@ public class DeliveryHandler {
 
         List<Point> flightPaths = new ArrayList<>();
 
-
-
         for (Order order: validOrders){
 
             Restaurant restaurant = getRestaurant(order, restaurants);
 
             if(restaurant != null && order.getOrderNo() != null){
 
-                PathFinder pathFinderToRest = new PathFinder(
+                LngLatPair toRestaurantKey = new LngLatPair(appletonTower, restaurant.location());
+
+                if (cachedPaths.containsKey(toRestaurantKey)){
+                    flightPaths.addAll(cachedPaths.get(toRestaurantKey));
+                }
+
+                else {
+                    PathFinder pathFinderToRest = new PathFinder(
                         order.getOrderNo(),
                         appletonTower,
                         restaurant.location(),
                         noFlyZones,
                         centralArea
-                );
+                    );
+                    cachedPaths.put(toRestaurantKey, pathFinderToRest.aStar());
+                    flightPaths.addAll(pathFinderToRest.aStar());
+                }
 
+                LngLatPair toAppletonKey = new LngLatPair(restaurant.location(), appletonTower);
 
-                flightPaths.addAll(pathFinderToRest.aStar());
-
-
-                PathFinder pathFinderToAppleton = new PathFinder(
-                        order.getOrderNo(),
-                        restaurant.location(),
-                        appletonTower,
-                        noFlyZones,
-                        centralArea
-                );
-
-                flightPaths.addAll(pathFinderToAppleton.aStar());
+                if (cachedPaths.containsKey(toAppletonKey)){
+                    flightPaths.addAll(cachedPaths.get(toAppletonKey));
+                }
+                else {
+                    PathFinder pathFinderToAppleton = new PathFinder(
+                            order.getOrderNo(),
+                            restaurant.location(),
+                            appletonTower,
+                            noFlyZones,
+                            centralArea
+                    );
+                    cachedPaths.put(toAppletonKey, pathFinderToAppleton.aStar());
+                    flightPaths.addAll(pathFinderToAppleton.aStar());
+                }
 
             }
 
