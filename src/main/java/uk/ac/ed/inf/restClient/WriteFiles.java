@@ -84,6 +84,9 @@ public class WriteFiles {
         ObjectNode feature = mapper.createObjectNode();
         feature.put("type", "Feature");
 
+        ObjectNode properties = mapper.createObjectNode();
+        feature.set("properties", properties);
+
         ObjectNode geometry = mapper.createObjectNode();
         geometry.put("type", "LineString");
 

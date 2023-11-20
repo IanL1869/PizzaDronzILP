@@ -19,14 +19,13 @@ import java.util.*;
 
 public class DeliveryHandler {
 
-    private String baseURL;
-    private String orderDate;
-    private RestClient restClient;
+    private final String baseURL;
+    private final String orderDate;
+    private final RestClient restClient;
     private List<Order> validOrders = new ArrayList<>();
     private Map<LngLatPair, List<Point>> cachedPaths = new HashMap<>();
-
-
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
+    private List<FlightpathJSON> flightpathJSONList = new ArrayList<>();
 
     public DeliveryHandler(String baseURL, String orderDate) throws IOException {
         this.baseURL = baseURL;
@@ -126,6 +125,8 @@ public class DeliveryHandler {
         return flightPaths;
 
     }
+
+
 
 
     public Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){

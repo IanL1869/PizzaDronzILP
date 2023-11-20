@@ -9,17 +9,13 @@ import uk.ac.ed.inf.restClient.FlightpathJSON;
 import java.util.*;
 public class PathFinder {
 
-    private  LongLatHandle LLhandle = new LongLatHandle();
-    private String orderNo;
-    private LngLat start;
-    private LngLat end;
-    private NamedRegion[] noFlyZones;
-    private NamedRegion centralArea;
+    private final LongLatHandle LLhandle = new LongLatHandle();
+    private final String orderNo;
+    private final LngLat start;
+    private final LngLat end;
+    private final NamedRegion[] noFlyZones;
+    private final NamedRegion centralArea;
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
-
-
-
-    //    private boolean leftCentralArea = false;
     private boolean returnedToCentralArea = false;
     private boolean returningToAppleton = false;
 
@@ -78,8 +74,6 @@ public class PathFinder {
                     continue;
                 }
 
-
-
                 if (gScoreValues.containsKey(neighbour.getLngLat())) {
 
                     double new_cost = neighbour.getgScore();
@@ -94,8 +88,6 @@ public class PathFinder {
                 } else {
                     frontier.add(neighbour);
                     gScoreValues.put(neighbour.getLngLat(), neighbour);
-
-
                 }
 
             }
@@ -135,11 +127,14 @@ public class PathFinder {
 
     public List<Point> reconstructPath(Point currentPoint){
         List<Point> total_path = new ArrayList<>();
+        total_path.add(new Point(999, currentPoint.getLngLat(), currentPoint, currentPoint.getgScore(), currentPoint.gethScore(), orderNo ));
 
-        while (currentPoint != null){
+        while (currentPoint != null && currentPoint.getPreviousPoint() != null){
             total_path.add(currentPoint);
             currentPoint = currentPoint.getPreviousPoint();
         }
+
+        total_path.add(new Point(999, currentPoint.getLngLat(), currentPoint, currentPoint.getgScore(), currentPoint.gethScore(), orderNo ));
 
         Collections.reverse(total_path);
 
