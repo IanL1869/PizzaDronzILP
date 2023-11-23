@@ -29,20 +29,21 @@ public class LongLatHandle implements LngLatHandling {
 
     @Override
     public boolean isInRegion(LngLat position, NamedRegion region) {
-        int count = 0;
-        double xp = position.lng();
-        double yp = position.lat();
+
         LngLat[] vertices = region.vertices();
+        int count = 0;
+        double positionLon = position.lng();
+        double positionLat = position.lat();
 
 //      Checks each set of edges against the point for intersections
         for (int i = 0; i < region.vertices().length; i++) {
 
 //          Gets pair of vertices joined by edge
-            double x1 = vertices[i].lng();
-            double y1 = vertices[i].lat();
+            double currentVertexLong = vertices[i].lng();
+            double currentVertexLat = vertices[i].lat();
 
-            double x2 = vertices[(i + 1) % vertices.length].lng();
-            double y2 = vertices[(i + 1) % vertices.length].lat();
+            double nextVertexLong = vertices[(i + 1) % vertices.length].lng();
+            double nextVertexLat = vertices[(i + 1) % vertices.length].lat();
 
 //          Checks if point is vertex
             if (Arrays.asList(vertices).contains(position)) {
@@ -50,17 +51,17 @@ public class LongLatHandle implements LngLatHandling {
             }
 
 //          Check if point is between equal y values
-            if ((yp == y1 && yp == y2 && ((xp < x1) != (xp < x2)))) {
+            if ((positionLat == currentVertexLat && positionLat == nextVertexLat && ((positionLon < currentVertexLong) != (positionLon < nextVertexLong)))) {
                 return true;
             }
 
 //          Raycast
-            if ((yp < y1) != (yp < y2)) {
-                double v = x1 + (((yp - y1) / (y2 - y1)) * (x2 - x1));
+            if ((positionLat < currentVertexLat) != (positionLat < nextVertexLat)) {
+                double v = currentVertexLong + (((positionLat - currentVertexLat) / (nextVertexLat - currentVertexLat)) * (nextVertexLong - currentVertexLong));
 //              If x values are equal
-                if (xp == v) {
+                if (positionLon == v) {
                     return true;
-                } else if (xp < v) {
+                } else if (positionLon < v) {
                     count++;
                 }
             }
@@ -68,51 +69,6 @@ public class LongLatHandle implements LngLatHandling {
         return count%2==1;
     }
 
-    public boolean isInRegionT(LngLat position, NamedRegion region) {
-
-        // initialsie array of coordinates as the regions vertices
-        LngLat[] vertices = region.vertices();
-
-        // set the passed in position coordinates to variables
-        double positionLon = position.lng();
-        double positionLat = position.lat();
-
-        // set count to 0 and loop through all region vertices
-        int count = 0;
-
-        for (int i = 0; i < vertices.length; i++){
-
-            // set variables that check consecutive vertex
-            LngLat currentVertex = vertices[i];
-            LngLat nextVertex = vertices[(i + 1) % vertices.length];    // Use modular arithmetic so that last vertex connects with first
-
-
-            // case for when position is on a vertex of a region
-            if ((positionLat == currentVertex.lat() && positionLon == currentVertex.lng()) || (positionLat == nextVertex.lat() && positionLon == nextVertex.lng())){
-                return true;
-
-                // case for rectangle/square top or bottom line
-            } else if ((positionLat == currentVertex.lat() && positionLat == nextVertex.lat()) || (positionLon < currentVertex.lng() && positionLon < nextVertex.lng())){
-                return true;
-
-                // ray casting algorithm to determine if position is within any polygon
-            } else if ((positionLat < currentVertex.lat()) != (positionLat < nextVertex.lat())){
-
-                double ip = currentVertex.lng() + ((positionLat - currentVertex.lat())/ (nextVertex.lat() - currentVertex.lat()) * (nextVertex.lng() - currentVertex.lng()));
-
-                // ray intersects with edge so increase the count
-                if (positionLat <= ip){
-
-                    count = count + 1;
-
-                }
-            }
-
-        }
-        // if the odd then it is in the region. if even it is outwith the region
-        return count % 2 == 1;
-
-    }
 
     @Override
     public LngLat nextPosition(LngLat startPosition, double angle) {

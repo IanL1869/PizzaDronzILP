@@ -27,14 +27,16 @@ public class DeliveryHandler {
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
     private List<FlightpathJSON> flightpathJSONList = new ArrayList<>();
 
+
     public DeliveryHandler(String baseURL, String orderDate) throws IOException {
         this.baseURL = baseURL;
         this.orderDate = orderDate;
         this.restClient = new RestClient(baseURL, orderDate);
     }
 
+
+
     public List<DeliveriesJSON> getValidDeliveries() throws IOException {
-        RestClient restClient = new RestClient(baseURL, orderDate);
         Restaurant[] restaurants = restClient.getRestaurants();
         Order[] orders = restClient.getOrdersOnDate();
 
@@ -85,9 +87,7 @@ public class DeliveryHandler {
 
                 if (cachedPaths.containsKey(toRestaurantKey)){
                     flightPaths.addAll(cachedPaths.get(toRestaurantKey));
-                }
-
-                else {
+                } else {
                     PathFinder pathFinderToRest = new PathFinder(
                         order.getOrderNo(),
                         appletonTower,
@@ -95,6 +95,7 @@ public class DeliveryHandler {
                         noFlyZones,
                         centralArea
                     );
+
                     cachedPaths.put(toRestaurantKey, pathFinderToRest.aStar());
                     flightPaths.addAll(pathFinderToRest.aStar());
                 }
@@ -129,7 +130,7 @@ public class DeliveryHandler {
 
 
 
-    public Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){
+    private Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){
 
         if (validatedOrder.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)){
             for(Restaurant restaurant: restaurants){

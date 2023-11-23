@@ -9,6 +9,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.net.URL;
 
+/**
+ * RestClient to get the data from Rest Service
+ */
 public class RestClient {
 
     /**
@@ -21,10 +24,11 @@ public class RestClient {
 
     /**
      * Constructor for RestClient
-     * @param baseURL URL used for REST Server
+     *
+     * @param baseURL   URL used for REST Server
      * @param orderDate Date of orders to get
      */
-    public RestClient(String baseURL, String orderDate){
+    public RestClient(String baseURL, String orderDate) {
         this.baseURL = baseURL;
         this.orderDate = orderDate;
     }
@@ -32,7 +36,6 @@ public class RestClient {
     /**
      * Retrieves a list of Restaurants from the given base URL.
      * Sends a request to the given base URL to get a list of Restaurants.
-     *
      *
      * @return An array of Restaurant records representing the retrieved Restaurants.
      * @throws RuntimeException if an IOException occurs during the process.
@@ -60,21 +63,20 @@ public class RestClient {
      * Retrieves a list of Orders from the given base URL and orderDate.
      * Sends a request to the given base URL to get a list of Orders on a specific date.
      *
-     *
      * @return An array of Order classes representing the retrieved Orders for that date.
      * @throws RuntimeException if an IOException occurs during the process.
      */
-    public Order[] getOrdersOnDate() throws IOException{
+    public Order[] getOrdersOnDate() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
         Order[] ordersOnDate;
 
-        try{
-            ordersOnDate = mapper.readValue(new URL (baseURL + "/orders" + "/" + orderDate), Order[].class);
+        try {
+            ordersOnDate = mapper.readValue(new URL(baseURL + "/orders" + "/" + orderDate), Order[].class);
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -87,20 +89,19 @@ public class RestClient {
      * Sends a request to the given base URL to get a NamedRegion record for central area.
      * The NamedRegion record holds the LngLat coordinates of the centralArea.
      *
-     *
      * @return A NamedRegion record that includes the LngLat coordinates of the central area.
      * @throws RuntimeException if an IOException occurs during the process.
      */
-    public NamedRegion getCentralArea() throws IOException{
+    public NamedRegion getCentralArea() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
         NamedRegion centralArea;
 
-        try{
-            centralArea = mapper.readValue(new URL (baseURL + "/centralArea"), NamedRegion.class);
+        try {
+            centralArea = mapper.readValue(new URL(baseURL + "/centralArea"), NamedRegion.class);
 
-        }catch (IOException e){
+        } catch (IOException e) {
 
             throw new RuntimeException(e);
         }
@@ -113,35 +114,23 @@ public class RestClient {
      * Sends a request to the given base URL to get an array of NamedRegion records for the zones the drone is not
      * allowed to fly in. The NamedRegion records hold the LngLat coordinates of each of these areas.
      *
-     *
      * @return An array of NamedRegion records that includes LngLat coordinates of each no-fly-zone.
      * @throws RuntimeException if an IOException occurs during the process.
      */
-    public NamedRegion[] getNoFlyZones() throws IOException{
+    public NamedRegion[] getNoFlyZones() throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
 
         NamedRegion[] noFlyZones;
 
-        try{
-            noFlyZones = mapper.readValue(new URL (baseURL + "/noFlyZones"), NamedRegion[].class);
+        try {
+            noFlyZones = mapper.readValue(new URL(baseURL + "/noFlyZones"), NamedRegion[].class);
 
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         return noFlyZones;
     }
-
-
-//    public void main(String[] args) throws IOException {
-//        Restaurant[] restaurant = getRestaurant();
-//
-//        for(Restaurant value: restaurant){
-//            System.out.println(value);
-//        }
-//        System.out.println(restaurant);
-//    }
-
 }

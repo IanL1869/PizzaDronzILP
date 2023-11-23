@@ -11,7 +11,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 /**
- * Hello world!
+ * The PizzaDronz app implements
+ *
  *
  */
 public class App 

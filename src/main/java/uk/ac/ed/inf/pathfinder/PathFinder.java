@@ -19,6 +19,8 @@ public class PathFinder {
     private boolean returnedToCentralArea = false;
     private boolean returningToAppleton = false;
 
+    private final double[] angles = {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5};
+
 
 
     public PathFinder(String orderNo, LngLat start, LngLat end, NamedRegion[] noFlyZones, NamedRegion centralArea) {
@@ -96,10 +98,10 @@ public class PathFinder {
         return null;
     }
 
-    public List<Point> getNeighbours(Point currentPoint, NamedRegion[] noFlyZones) {
+    private List<Point> getNeighbours(Point currentPoint, NamedRegion[] noFlyZones) {
 
         LngLat currentLngLat = currentPoint.getLngLat();
-        double[] angles = {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5};
+
         List<Point> neighbours = new ArrayList<>();
 
         for(double angle: angles){
@@ -125,7 +127,7 @@ public class PathFinder {
 
     }
 
-    public List<Point> reconstructPath(Point currentPoint){
+    private List<Point> reconstructPath(Point currentPoint){
         List<Point> total_path = new ArrayList<>();
         total_path.add(new Point(999, currentPoint.getLngLat(), currentPoint, currentPoint.getgScore(), currentPoint.gethScore(), orderNo ));
 
@@ -141,7 +143,7 @@ public class PathFinder {
         return total_path;
     }
 
-    public boolean validateNeighbour(LngLat neighbourLngLat, LngLat previousLngLat){
+    private boolean validateNeighbour(LngLat neighbourLngLat, LngLat previousLngLat){
 
         for (NamedRegion noFlyZone : noFlyZones){
 
@@ -151,7 +153,7 @@ public class PathFinder {
             }
         }
 
-        if (LLhandle.isInRegion(neighbourLngLat, centralArea)){
+        if (LLhandle.isInRegion(previousLngLat, centralArea)){
             returnedToCentralArea = true;
         }
 
