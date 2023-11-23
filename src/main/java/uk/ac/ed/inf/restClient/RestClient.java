@@ -10,23 +10,25 @@ import java.io.IOException;
 import java.net.URL;
 
 /**
- * RestClient to get the data from Rest Service
+ * RestClient class to get essential data from Rest Service
  */
 public class RestClient {
 
     /**
-     * Two variables of type string. One represents the URL used for the RestClient
-     * and the other is the date of orders to retrieve.
+     * String representing base URL for the Rest Service
      */
+    private final String baseURL;
 
-    private String baseURL;
-    private String orderDate;
+    /**
+     * String representing the order date.
+     */
+    private final String orderDate;
 
     /**
      * Constructor for RestClient
      *
-     * @param baseURL   URL used for REST Server
-     * @param orderDate Date of orders to get
+     * @param baseURL   String representing base URL for the Rest Service
+     * @param orderDate String representing the order date.
      */
     public RestClient(String baseURL, String orderDate) {
         this.baseURL = baseURL;
