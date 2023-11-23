@@ -32,7 +32,7 @@ public class PathFinder {
     }
 
 
-    public List<Point> aStar() {
+    public List<FlightpathJSON> aStar() {
 
         if (end == appletonTower){
 
@@ -127,16 +127,17 @@ public class PathFinder {
 
     }
 
-    private List<Point> reconstructPath(Point currentPoint){
-        List<Point> total_path = new ArrayList<>();
-        total_path.add(new Point(999, currentPoint.getLngLat(), currentPoint, currentPoint.getgScore(), currentPoint.gethScore(), orderNo ));
+    private List<FlightpathJSON> reconstructPath(Point currentPoint){
+        List<FlightpathJSON> total_path = new ArrayList<>();
+
+        total_path.add(new FlightpathJSON(orderNo, currentPoint.getLngLat().lng(), currentPoint.getLngLat().lat(), 999,currentPoint.getLngLat().lng(), currentPoint.getLngLat().lat()  ));
 
         while (currentPoint != null && currentPoint.getPreviousPoint() != null){
-            total_path.add(currentPoint);
+            total_path.add(new FlightpathJSON(orderNo, currentPoint.getPreviousPoint().getLngLat().lng(),currentPoint.getPreviousPoint().getLngLat().lat(), currentPoint.getAngle(), currentPoint.getLngLat().lng(), currentPoint.getLngLat().lat() ));
             currentPoint = currentPoint.getPreviousPoint();
         }
 
-        total_path.add(new Point(999, currentPoint.getLngLat(), currentPoint, currentPoint.getgScore(), currentPoint.gethScore(), orderNo ));
+        total_path.add(new FlightpathJSON(orderNo, currentPoint.getLngLat().lng(), currentPoint.getLngLat().lat(), 999,currentPoint.getLngLat().lng(), currentPoint.getLngLat().lat()));
 
         Collections.reverse(total_path);
 

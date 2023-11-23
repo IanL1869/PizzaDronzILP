@@ -15,11 +15,11 @@ import java.util.List;
 public class WriteFiles {
 
 
-    private List<Point> flightpaths;
+    private List<FlightpathJSON> flightpaths;
     private String orderDate;
     private List<DeliveriesJSON> deliveriesJSON;
 
-    public WriteFiles(List<DeliveriesJSON> deliveriesJSON, String orderDate, List<Point> flightpaths){
+    public WriteFiles(List<DeliveriesJSON> deliveriesJSON, String orderDate, List<FlightpathJSON> flightpaths){
         this.deliveriesJSON = deliveriesJSON;
         this.orderDate = orderDate;
         this.flightpaths = flightpaths;
@@ -34,26 +34,26 @@ public class WriteFiles {
             ObjectMapper mapper = new ObjectMapper();
             File file = new File("resultfiles/flightpath-" + orderDate + ".json");
 
-            List<FlightpathJSON> flightpathJSONS = new ArrayList<>();
-
-            for(Point flightpath: flightpaths){
-                if (flightpath.getPreviousPoint() != null){
-                    FlightpathJSON flightpathJSON = new FlightpathJSON(
-                            flightpath.getOrderNo(),
-                            flightpath.getPreviousPoint().getLngLat().lng(),
-                            flightpath.getPreviousPoint().getLngLat().lat(),
-                            flightpath.getAngle(),
-                            flightpath.getLngLat().lng(),
-                            flightpath.getLngLat().lat()
-                    );
-
-                    flightpathJSONS.add(flightpathJSON);
-
-                }
-
-
-            }
-            mapper.writeValue(new FileWriter(file), flightpathJSONS);
+//            List<FlightpathJSON> flightpathJSONS = new ArrayList<>();
+//
+//            for(Point flightpath: flightpaths){
+//                if (flightpath.getPreviousPoint() != null){
+//                    FlightpathJSON flightpathJSON = new FlightpathJSON(
+//                            flightpath.getOrderNo(),
+//                            flightpath.getPreviousPoint().getLngLat().lng(),
+//                            flightpath.getPreviousPoint().getLngLat().lat(),
+//                            flightpath.getAngle(),
+//                            flightpath.getLngLat().lng(),
+//                            flightpath.getLngLat().lat()
+//                    );
+//
+//                    flightpathJSONS.add(flightpathJSON);
+//
+//                }
+//
+//
+//            }
+            mapper.writeValue(new FileWriter(file), flightpaths);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -92,10 +92,10 @@ public class WriteFiles {
 
         ArrayNode coordinates = mapper.createArrayNode();
 
-        for(Point flightpath: flightpaths){
+        for(FlightpathJSON flightpath: flightpaths){
             ArrayNode coordinate = mapper.createArrayNode();
-            coordinate.add(flightpath.getLngLat().lng());
-            coordinate.add(flightpath.getLngLat().lat());
+            coordinate.add(flightpath.getFromLongitude());
+            coordinate.add(flightpath.getFromLatitude());
             coordinates.add(coordinate);
         }
 
