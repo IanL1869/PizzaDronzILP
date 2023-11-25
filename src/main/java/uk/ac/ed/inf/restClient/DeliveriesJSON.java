@@ -38,4 +38,5 @@ public class DeliveriesJSON {
         this.orderValidationCode = orderValidationCode;
         this.costInPence = costInPence;
     }
+
 }

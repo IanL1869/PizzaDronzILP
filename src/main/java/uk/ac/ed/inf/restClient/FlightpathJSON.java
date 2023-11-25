@@ -89,4 +89,12 @@ public class FlightpathJSON {
     public double getToLongitude() {
         return toLongitude;
     }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public double getAngle() {
+        return angle;
+    }
 }

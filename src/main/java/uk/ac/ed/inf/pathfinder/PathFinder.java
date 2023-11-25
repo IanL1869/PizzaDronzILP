@@ -202,7 +202,6 @@ public class PathFinder {
             endPoint = endPoint.getPreviousPoint();
         }
 
-        total_path.add(new FlightpathJSON(orderNo, endPoint.getLngLat().lng(), endPoint.getLngLat().lat(), 999,endPoint.getLngLat().lng(), endPoint.getLngLat().lat()));
 
         Collections.reverse(total_path);
 

@@ -75,8 +75,8 @@ public class WriteFiles {
 
         for(FlightpathJSON flightpath: flightpaths){
             ArrayNode coordinate = mapper.createArrayNode();
-            coordinate.add(flightpath.getToLongitude());
-            coordinate.add(flightpath.getToLatitude());
+            coordinate.add(flightpath.getFromLongitude());
+            coordinate.add(flightpath.getFromLatitude());
             coordinates.add(coordinate);
         }
 
