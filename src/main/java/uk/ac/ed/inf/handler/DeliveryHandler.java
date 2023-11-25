@@ -17,13 +17,13 @@ import java.util.*;
 
 
 public class DeliveryHandler {
-
-    private  String orderDate;
-    private  RestClient restClient;
+    private String baseURL;
+    private String orderDate;
+    private RestClient restClient;
     private Map<LngLatPair, List<FlightpathJSON>> cachedPaths = new HashMap<>();
     private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
-    private List<Order> validOrders = new ArrayList<>();
     private OrderVal orderToValidate = new OrderVal();
+
 
 
     public DeliveryHandler(String baseURL, String orderDate) throws IOException {
@@ -32,6 +32,7 @@ public class DeliveryHandler {
     }
 
     private List<Order> getValidOrders() throws IOException {
+        List<Order> validOrders = new ArrayList<>();
         Restaurant[] restaurants = restClient.getRestaurants();
         Order[] orders = restClient.getOrdersOnDate();
 
@@ -64,11 +65,11 @@ public class DeliveryHandler {
 
     public List<FlightpathJSON> getFlightPaths() throws IOException {
 
+        List<Order> validOrders = getValidOrders();
         Restaurant[] restaurants = restClient.getRestaurants();
         NamedRegion[] noFlyZones = restClient.getNoFlyZones();
         NamedRegion centralArea = restClient.getCentralArea();
         List<FlightpathJSON> flightPaths = new ArrayList<>();
-        List<Order> validOrders = getValidOrders();
 
         for (Order validOrder: validOrders){
 
@@ -78,6 +79,7 @@ public class DeliveryHandler {
 
             if (cachedPaths.containsKey(toRestaurantKey)) {
                 updatePathOrderNo(flightPaths, validOrder, toRestaurantKey);
+
 
             } else {
                 PathFinder pathFinderToRest = new PathFinder(validOrder.getOrderNo(), appletonTower, restaurant.location(), noFlyZones, centralArea);
@@ -89,6 +91,7 @@ public class DeliveryHandler {
 
             if (cachedPaths.containsKey(toAppletonKey)) {
                 updatePathOrderNo(flightPaths, validOrder, toAppletonKey);
+
             } else {
                 PathFinder pathFinderToAppleton = new PathFinder(validOrder.getOrderNo(), restaurant.location(), appletonTower, noFlyZones, centralArea);
                 cachedPaths.put(toAppletonKey, pathFinderToAppleton.aStar());

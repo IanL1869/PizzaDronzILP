@@ -21,8 +21,8 @@ public class App
 
     public static void main(String[] args ) throws IOException {
 
-        String orderDate = "2023-09-01";
-        String baseURL = "https://ilp-rest.azurewebsites.net";
+        String orderDate = args[0];
+        String baseURL = args[1];
 
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

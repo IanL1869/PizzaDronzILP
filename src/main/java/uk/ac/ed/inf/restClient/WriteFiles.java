@@ -17,6 +17,8 @@ public class WriteFiles {
     private List<FlightpathJSON> flightpaths;
     private String orderDate;
     private List<DeliveriesJSON> deliveriesJSON;
+    private ObjectMapper mapper = new ObjectMapper();
+
 
     public WriteFiles(List<DeliveriesJSON> deliveriesJSON, String orderDate, List<FlightpathJSON> flightpaths){
         this.deliveriesJSON = deliveriesJSON;
@@ -31,7 +33,7 @@ public class WriteFiles {
     public void writeFlightPath(){
 
         try{
-            ObjectMapper mapper = new ObjectMapper();
+
             File file = new File("resultfiles/flightpath-" + orderDate + ".json");
             mapper.writeValue(new FileWriter(file), flightpaths);
 
@@ -43,9 +45,8 @@ public class WriteFiles {
     public void writeDeliveries(){
 
         try{
-            ObjectMapper mapper = new ObjectMapper();
-            File file = new File("resultfiles/deliveries-" + orderDate + ".json");
 
+            File file = new File("resultfiles/deliveries-" + orderDate + ".json");
             mapper.writeValue(new FileWriter(file), deliveriesJSON);
         } catch (IOException e) {
 
@@ -55,8 +56,6 @@ public class WriteFiles {
     }
 
     public void writeGeoJson() {
-
-        ObjectMapper mapper = new ObjectMapper();
 
         ObjectNode featureCollection = mapper.createObjectNode();
         featureCollection.put("type", "FeatureCollection");
