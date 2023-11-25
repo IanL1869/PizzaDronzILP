@@ -17,12 +17,14 @@ public class RestClient {
     /**
      * String representing base URL for the Rest Service
      */
-    private final String baseURL;
+    private  String baseURL;
 
     /**
      * String representing the order date.
      */
-    private final String orderDate;
+    private  String orderDate;
+
+    private  ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Constructor for RestClient
@@ -44,9 +46,6 @@ public class RestClient {
      */
     public Restaurant[] getRestaurants() throws IOException {
 
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
 
         Restaurant[] restaurant_list;
         try {
@@ -70,9 +69,7 @@ public class RestClient {
      */
     public Order[] getOrdersOnDate() throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
-
         Order[] ordersOnDate;
 
         try {
@@ -95,9 +92,6 @@ public class RestClient {
      * @throws RuntimeException if an IOException occurs during the process.
      */
     public NamedRegion getCentralArea() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
         NamedRegion centralArea;
 
         try {
@@ -121,15 +115,13 @@ public class RestClient {
      */
     public NamedRegion[] getNoFlyZones() throws IOException {
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-
         NamedRegion[] noFlyZones;
 
         try {
             noFlyZones = mapper.readValue(new URL(baseURL + "/noFlyZones"), NamedRegion[].class);
 
         } catch (IOException e) {
+
             throw new RuntimeException(e);
         }
 

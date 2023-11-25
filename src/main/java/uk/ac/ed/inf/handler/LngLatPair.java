@@ -11,8 +11,6 @@ public class LngLatPair {
     public LngLatPair(LngLat start, LngLat end){
         this.start = start;
         this.end = end;
-
-
     }
 
     @Override
@@ -31,12 +29,5 @@ public class LngLatPair {
         return start.equals(other.start) && end.equals(other.end);
     }
 
-    public LngLat getStart() {
-        return start;
-    }
-
-    public LngLat getEnd() {
-        return end;
-    }
 
 }

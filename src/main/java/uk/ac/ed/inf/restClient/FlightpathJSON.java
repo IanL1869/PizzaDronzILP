@@ -21,7 +21,7 @@ public class FlightpathJSON {
     public double fromLatitude;
 
     /**
-     * The angle taken.
+     * The angle taken to get from previous coordinates to next coordinates.
      */
     public double angle;
 
@@ -41,7 +41,7 @@ public class FlightpathJSON {
      * @param orderNo The order number associated with the flight path.
      * @param fromLongitude The longitude of the coordinate in the flight path that the drone has come from.
      * @param fromLatitude The latitude of the coordinate in the flight path that the drone has come from.
-     * @param angle The angle taken.
+     * @param angle The angle taken to get from previous coordinates to next coordinates.
      * @param toLongitude The longitude of the coordinate in the flight path that the drone is going to.
      * @param toLatitude The latitude of the coordinate in the flight path that the drone is going to.
      */
@@ -90,10 +90,20 @@ public class FlightpathJSON {
         return toLongitude;
     }
 
+    /**
+     * Sets the order number of the flightpath.
+     *
+     * @param orderNo The hexadecimal string the order number is to be set to.
+     */
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
     }
 
+    /**
+     * Gets the angle taken to get from previous coordinates to next coordinates.
+     *
+     * @return The angle taken from previous coordinates to next coordinates.
+     */
     public double getAngle() {
         return angle;
     }
