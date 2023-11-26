@@ -55,10 +55,11 @@ public class WriteFiles {
     }
 
     /**
-     * Writes flight path information to a JSON fil.
+     * Writes flight path information to a JSON file.
      */
     public void writeFlightPath(){
 
+        // write flightpath file.
         try{
 
             File file = new File("resultfiles/flightpath-" + orderDate + ".json");
@@ -74,12 +75,13 @@ public class WriteFiles {
      */
     public void writeDeliveries(){
 
+        // write deliveries file.
         try{
 
             File file = new File("resultfiles/deliveries-" + orderDate + ".json");
             mapper.writeValue(new FileWriter(file), deliveriesJSON);
-        } catch (IOException e) {
 
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -90,38 +92,48 @@ public class WriteFiles {
      */
     public void writeDrone() {
 
+        // make a feature collection
         ObjectNode featureCollection = mapper.createObjectNode();
         featureCollection.put("type", "FeatureCollection");
+
+        // create feature and add it to features.
         ArrayNode features = mapper.createArrayNode();
         ObjectNode feature = mapper.createObjectNode();
         feature.put("type", "Feature");
 
+        // create properties.
         ObjectNode properties = mapper.createObjectNode();
         feature.set("properties", properties);
 
+        // create geometry and put in type LineString.
         ObjectNode geometry = mapper.createObjectNode();
         geometry.put("type", "LineString");
 
+        // create coordinates array node.
         ArrayNode coordinates = mapper.createArrayNode();
 
+        // loop through flightpathsJSON data and convert it to coordinates.
         for(FlightpathJSON flightpath: flightpathsJSON){
             ArrayNode coordinate = mapper.createArrayNode();
             coordinate.add(flightpath.getFromLongitude());
             coordinate.add(flightpath.getFromLatitude());
+
+            // add the coordinates.
             coordinates.add(coordinate);
         }
 
+        // put everything together.
         geometry.set("coordinates", coordinates);
         feature.set("geometry", geometry);
         features.add(feature);
-
         featureCollection.set("features", features);
-        File file = new File("resultfiles/drone-" + orderDate + ".geojson");
 
+        // write drone to file.
         try {
+            File file = new File("resultfiles/drone-" + orderDate + ".geojson");
             mapper.writeValue(new FileWriter(file), featureCollection);
-        } catch (IOException e) {
 
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

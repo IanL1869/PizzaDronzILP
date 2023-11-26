@@ -15,7 +15,7 @@ public class PathFinder {
     /**
      * The handle for longitude and latitude calculations.
      */
-    private final LngLatHandle LLhandle = new LngLatHandle();
+    private final LngLatHandle lngLatHandle = new LngLatHandle();
 
     /**
      * The order number associated with the order that the path is being calculated for.
@@ -87,60 +87,63 @@ public class PathFinder {
      */
     public List<FlightpathJSON> aStar() {
 
+        // update condition if the end coordinate is Appleton Tower.
         if (end == appletonTower){
-
             returningToAppleton = true;
-
         }
 
+        // setup priority queue so that it is arranged with respect to lowest f score (g score + h score).
         PriorityQueue<Point> frontier = new PriorityQueue<>(Comparator.comparingDouble(point -> point.getgScore() + point.gethScore()));
-        Point startPoint = new Point(
-                0,
-                start ,
-                null ,
-                0,
-                LLhandle.distanceTo(start, end),
-                orderNo
-        );
 
+        // initialise start Point and add it to the frontier.
+        Point startPoint = new Point(0, start , null , 0, lngLatHandle.distanceTo(start, end), orderNo);
         frontier.add(startPoint);
 
+        // initialise hashset to track points already visited and hashmap to store g scores.
         Set<LngLat> visitedPoints = new HashSet<>();
         Map<LngLat, Point> gScoreValues = new HashMap<>();
 
         gScoreValues.put(startPoint.getLngLat(), startPoint);
 
+        // loop when frontier is not empty.
         while (!frontier.isEmpty()) {
 
+            // get and remove the Point with lowest f score and add it to visited points.
             Point currentPoint = frontier.poll();
             visitedPoints.add(currentPoint.getLngLat());
 
-            if (LLhandle.isCloseTo(currentPoint.getLngLat(), end)) {
+            // condition when destination is reached
+            if (lngLatHandle.isCloseTo(currentPoint.getLngLat(), end)) {
                 returningToAppleton = false;
                 returnedToCentralArea = false;
                 return reconstructPath(currentPoint);
             }
 
+            // initialise a list of the neighbours
             List<Point> neighbours = getNeighbours(currentPoint);
 
+            // loop through neighbours
             for(Point neighbour : neighbours){
 
                 if (visitedPoints.contains(neighbour.getLngLat())) {
                     continue;
                 }
 
+                // condition when coordinate has already been searched but there's another path that costs less.
                 if (gScoreValues.containsKey(neighbour.getLngLat())) {
 
                     double new_cost = neighbour.getgScore();
                     Point existingNeighbour = gScoreValues.get(neighbour.getLngLat());
-                    if (existingNeighbour.getgScore() > new_cost) {
 
+                    if (existingNeighbour.getgScore() > new_cost) {
+                        // remove old neighbour and replace it with less cost neighbour of same coordinate.
                         frontier.remove(existingNeighbour);
                         frontier.add(neighbour);
                         gScoreValues.replace(neighbour.getLngLat(), neighbour);
 
                     }
                 } else {
+                    // add neighbour to the frontier and update g score values.
                     frontier.add(neighbour);
                     gScoreValues.put(neighbour.getLngLat(), neighbour);
                 }
@@ -160,24 +163,17 @@ public class PathFinder {
     private List<Point> getNeighbours(Point currentPoint) {
 
         LngLat currentLngLat = currentPoint.getLngLat();
-
         List<Point> neighbours = new ArrayList<>();
 
-        for(double angle: angles){
-            LngLat neighbourLngLat = LLhandle.nextPosition(currentLngLat, angle);
+        // loop through all possible angles and calculate next coordinate.
+        for(double angle : angles){
 
+            LngLat neighbourLngLat = lngLatHandle.nextPosition(currentLngLat, angle);
 
+            // if the neighbour is valid add it to the list.
             if (validateNeighbour(neighbourLngLat, currentLngLat)){
 
-                Point neighbour = new Point(
-                        angle,
-                        neighbourLngLat,
-                        currentPoint,
-                        currentPoint.getgScore() + SystemConstants.DRONE_MOVE_DISTANCE,
-                        LLhandle.distanceTo(neighbourLngLat, end),
-                        orderNo
-                );
-
+                Point neighbour = new Point(angle, neighbourLngLat, currentPoint, currentPoint.getgScore() + SystemConstants.DRONE_MOVE_DISTANCE, lngLatHandle.distanceTo(neighbourLngLat, end), orderNo);
                 neighbours.add(neighbour);
             }
         }
@@ -195,14 +191,16 @@ public class PathFinder {
     private List<FlightpathJSON> reconstructPath(Point endPoint){
         List<FlightpathJSON> total_path = new ArrayList<>();
 
+        // adds the hovering of the drone at the end of a path.
         total_path.add(new FlightpathJSON(orderNo, endPoint.getLngLat().lng(), endPoint.getLngLat().lat(), 999,endPoint.getLngLat().lng(), endPoint.getLngLat().lat()  ));
 
+        // builds the path from the end point backwards.
         while (endPoint != null && endPoint.getPreviousPoint() != null){
             total_path.add(new FlightpathJSON(orderNo, endPoint.getPreviousPoint().getLngLat().lng(),endPoint.getPreviousPoint().getLngLat().lat(), endPoint.getAngle(), endPoint.getLngLat().lng(), endPoint.getLngLat().lat() ));
             endPoint = endPoint.getPreviousPoint();
         }
 
-
+        // as it is backwards reverse the list to get path.
         Collections.reverse(total_path);
 
         return total_path;
@@ -217,21 +215,24 @@ public class PathFinder {
      */
     private boolean validateNeighbour(LngLat neighbourLngLat, LngLat currentLngLat){
 
+        // loop through all no-fly zones and check if the neighbour is in one.
         for (NamedRegion noFlyZone : noFlyZones){
-
-            if (LLhandle.isInRegion(neighbourLngLat, noFlyZone)){
+            if (lngLatHandle.isInRegion(neighbourLngLat, noFlyZone)){
 
                 return false;
             }
         }
 
-        if (LLhandle.isInRegion(currentLngLat, centralArea)){
+        // if the current coordinate is in the central area update the boolean that tracks this.
+        if (lngLatHandle.isInRegion(currentLngLat, centralArea)){
             returnedToCentralArea = true;
         }
 
+        // if the path is on the return to Appleton and has returned to the central area then the
+        // neighbour cannot leave central area again.
         if (returnedToCentralArea && returningToAppleton){
 
-            return LLhandle.isInRegion(neighbourLngLat, centralArea);
+            return lngLatHandle.isInRegion(neighbourLngLat, centralArea);
 
         }
 

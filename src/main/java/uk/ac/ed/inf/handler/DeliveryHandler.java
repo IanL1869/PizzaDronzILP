@@ -52,9 +52,8 @@ public class DeliveryHandler {
      *
      * @param baseURL   The base URL for making API requests.
      * @param orderDate The date for which day orders are being processed.
-     * @throws IOException If there is an issue with the RestClient.
      */
-    public DeliveryHandler(String baseURL, String orderDate) throws IOException {
+    public DeliveryHandler(String baseURL, String orderDate){
         this.orderDate = orderDate;
         this.restClient = new RestClient(baseURL, orderDate);
     }
@@ -63,22 +62,25 @@ public class DeliveryHandler {
      * Retrieves a list of valid orders by validating orders and setting their status to DELIVERED.
      *
      * @return A list of valid orders for the order date.
-     * @throws IOException If there is an issue with the RestClient.
      */
-    private List<Order> getValidOrders() throws IOException {
+    private List<Order> getValidOrders(){
         List<Order> validOrders = new ArrayList<>();
+
+        // get restaurants and orders for the order date.
         Restaurant[] restaurants = restClient.getRestaurants();
         Order[] orders = restClient.getOrdersOnDate();
 
+        // loop through all orders in that day and validate them.
         for (Order order : orders) {
 
             orderVal.validateOrder(order, restaurants);
 
+            // If orders are valid then add the valid orders to a list.
             if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
-                order.setOrderStatus(OrderStatus.DELIVERED);
                 validOrders.add(order);
             }
         }
+
         return validOrders;
     }
 
@@ -90,12 +92,14 @@ public class DeliveryHandler {
      */
     public List<DeliveriesJSON> getValidDeliveries() throws IOException {
 
+        // get a list of all valid orders.
         List<Order> validOrders = getValidOrders();
         List<DeliveriesJSON> validatedDeliveries = new ArrayList<>();
 
-        for (Order order : validOrders) {
-            order.setOrderStatus(OrderStatus.DELIVERED);
-            DeliveriesJSON orderJSON = new DeliveriesJSON(order.getOrderNo(), order.getOrderStatus().toString(), order.getOrderValidationCode().toString(), order.getPriceTotalInPence());
+        // loop through all the valid orders set their status to delivered and add them as a DeliveriesJSON object to a list.
+        for (Order validOrder : validOrders) {
+            validOrder.setOrderStatus(OrderStatus.DELIVERED);
+            DeliveriesJSON orderJSON = new DeliveriesJSON(validOrder.getOrderNo(), validOrder.getOrderStatus().toString(), validOrder.getOrderValidationCode().toString(), validOrder.getPriceTotalInPence());
             validatedDeliveries.add(orderJSON);
         }
 
@@ -111,33 +115,43 @@ public class DeliveryHandler {
      */
     public List<FlightpathJSON> getFlightPaths() throws IOException {
 
+        // get the list of valid orders and get the data needed for writing flight paths.
         List<Order> validOrders = getValidOrders();
         Restaurant[] restaurants = restClient.getRestaurants();
         NamedRegion[] noFlyZones = restClient.getNoFlyZones();
         NamedRegion centralArea = restClient.getCentralArea();
         List<FlightpathJSON> flightPaths = new ArrayList<>();
 
+        // loop through valid orders.
         for (Order validOrder: validOrders){
 
+            // get the restaurant related to the order.
             Restaurant restaurant = orderVal.getRestaurant(validOrder, restaurants);
 
+            // picking up the pizzas.
+            // define a LngLatPair of the way there.
             LngLatPair toRestaurantKey = new LngLatPair(appletonTower, restaurant.location());
 
+            // if this path to the restaurant has already been calculated then get it from cache.
             if (cachedPaths.containsKey(toRestaurantKey)) {
                 updatePathOrderNo(flightPaths, validOrder, toRestaurantKey);
 
-
+                // otherwise calculate the path to the restaurant, cache it and add it to the flight paths.
             } else {
                 PathFinder pathFinderToRest = new PathFinder(validOrder.getOrderNo(), appletonTower, restaurant.location(), noFlyZones, centralArea);
                 cachedPaths.put(toRestaurantKey, pathFinderToRest.aStar());
                 flightPaths.addAll(pathFinderToRest.aStar());
             }
 
+            // delivering the pizzas.
+            // define a LngLatPair of the way back to Appleton.
             LngLatPair toAppletonKey = new LngLatPair(restaurant.location(), appletonTower);
 
+            // if this path back has already been calculated then get it from cache.
             if (cachedPaths.containsKey(toAppletonKey)) {
                 updatePathOrderNo(flightPaths, validOrder, toAppletonKey);
 
+                // otherwise calculate the path back to Appleton, cache it and add it to the flight paths.
             } else {
                 PathFinder pathFinderToAppleton = new PathFinder(validOrder.getOrderNo(), restaurant.location(), appletonTower, noFlyZones, centralArea);
                 cachedPaths.put(toAppletonKey, pathFinderToAppleton.aStar());
@@ -158,9 +172,10 @@ public class DeliveryHandler {
      * @param key       The key representing the start and end coordinates in the cached paths.
      */
     private void updatePathOrderNo(List<FlightpathJSON> flightPaths, Order order, LngLatPair key) {
+
+        // find the path from cache, change orderNo to match the correct order and add it to flightpaths.
         List<FlightpathJSON> pathToGet = cachedPaths.get(key);
         List<FlightpathJSON> updatePath = pathToGet.stream().map(flightpathJSON -> new FlightpathJSON(order.getOrderNo(), flightpathJSON.getFromLongitude(), flightpathJSON.getFromLatitude(), flightpathJSON.getAngle(), flightpathJSON.getToLongitude(), flightpathJSON.getToLatitude())).toList();
-
 
         flightPaths.addAll(updatePath);
     }
