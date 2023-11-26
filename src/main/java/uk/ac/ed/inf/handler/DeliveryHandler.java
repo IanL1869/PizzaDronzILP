@@ -15,22 +15,56 @@ import java.io.IOException;
 
 import java.util.*;
 
-
+/**
+ * The DeliveryHandler class manages the delivery process, including order validation, pathfinding,
+ * and writing delivery and flight path information to files.
+ */
 public class DeliveryHandler {
-    private String baseURL;
+
+
+    /**
+     * The date for which orders are being processed.
+     */
     private String orderDate;
+
+    /**
+     * The RestClient responsible for making API requests.
+     */
     private RestClient restClient;
+
+    /**
+     * Cached flight paths for paths that are repeated on an order date.
+     */
     private Map<LngLatPair, List<FlightpathJSON>> cachedPaths = new HashMap<>();
-    private final LngLat appletonTower = new LngLat(-3.186874,55.944494);
-    private OrderVal orderToValidate = new OrderVal();
 
+    /**
+     * Coordinates for Appleton Tower.
+     */
+    private final LngLat appletonTower = new LngLat(-3.186874, 55.944494);
 
+    /**
+     * Order validator for validating orders.
+     */
+    private OrderVal orderVal = new OrderVal();
 
+    /**
+     * Constructs a DeliveryHandler object.
+     *
+     * @param baseURL   The base URL for making API requests.
+     * @param orderDate The date for which day orders are being processed.
+     * @throws IOException If there is an issue with the RestClient.
+     */
     public DeliveryHandler(String baseURL, String orderDate) throws IOException {
         this.orderDate = orderDate;
         this.restClient = new RestClient(baseURL, orderDate);
     }
 
+    /**
+     * Retrieves a list of valid orders by validating orders and setting their status to DELIVERED.
+     *
+     * @return A list of valid orders for the order date.
+     * @throws IOException If there is an issue with the RestClient.
+     */
     private List<Order> getValidOrders() throws IOException {
         List<Order> validOrders = new ArrayList<>();
         Restaurant[] restaurants = restClient.getRestaurants();
@@ -38,7 +72,7 @@ public class DeliveryHandler {
 
         for (Order order : orders) {
 
-            orderToValidate.validateOrder(order, restaurants);
+            orderVal.validateOrder(order, restaurants);
 
             if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR)) {
                 order.setOrderStatus(OrderStatus.DELIVERED);
@@ -48,6 +82,12 @@ public class DeliveryHandler {
         return validOrders;
     }
 
+    /**
+     * Retrieves a list of validated deliveries based on valid orders.
+     *
+     * @return A list of validated deliveries in JSON format.
+     * @throws IOException If there is an issue with the RestClient.
+     */
     public List<DeliveriesJSON> getValidDeliveries() throws IOException {
 
         List<Order> validOrders = getValidOrders();
@@ -63,6 +103,12 @@ public class DeliveryHandler {
     }
 
 
+    /**
+     * Retrieves flight paths for valid orders by calculating paths to the restaurant and for the path when returning to Appleton Tower.
+     *
+     * @return A list of flight paths in JSON format.
+     * @throws IOException If there is an issue with the RestClient.
+     */
     public List<FlightpathJSON> getFlightPaths() throws IOException {
 
         List<Order> validOrders = getValidOrders();
@@ -73,7 +119,7 @@ public class DeliveryHandler {
 
         for (Order validOrder: validOrders){
 
-            Restaurant restaurant = getRestaurant(validOrder, restaurants);
+            Restaurant restaurant = orderVal.getRestaurant(validOrder, restaurants);
 
             LngLatPair toRestaurantKey = new LngLatPair(appletonTower, restaurant.location());
 
@@ -103,34 +149,32 @@ public class DeliveryHandler {
         return flightPaths;
 
     }
-//      Need to make sure orderNO is updated
-    private void updatePathOrderNo(List<FlightpathJSON> flightPaths, Order order, LngLatPair toKey) {
-        List<FlightpathJSON> pathToAppleton = cachedPaths.get(toKey);
-        List<FlightpathJSON> updatePathToAppleton = pathToAppleton.stream().map(flightpathJSON -> new FlightpathJSON(order.getOrderNo(), flightpathJSON.getFromLongitude(), flightpathJSON.getFromLatitude(), flightpathJSON.getAngle(), flightpathJSON.getToLongitude(), flightpathJSON.getToLatitude())).toList();
+
+    /**
+     * Updates the order number in the cached flight paths for a given order.
+     *
+     * @param flightPaths The list of flight paths to update.
+     * @param order       The order for which to update the order number.
+     * @param key       The key representing the start and end coordinates in the cached paths.
+     */
+    private void updatePathOrderNo(List<FlightpathJSON> flightPaths, Order order, LngLatPair key) {
+        List<FlightpathJSON> pathToGet = cachedPaths.get(key);
+        List<FlightpathJSON> updatePath = pathToGet.stream().map(flightpathJSON -> new FlightpathJSON(order.getOrderNo(), flightpathJSON.getFromLongitude(), flightpathJSON.getFromLatitude(), flightpathJSON.getAngle(), flightpathJSON.getToLongitude(), flightpathJSON.getToLatitude())).toList();
 
 
-        flightPaths.addAll(updatePathToAppleton);
+        flightPaths.addAll(updatePath);
     }
 
 
-    //     method only to be called on validated orders
-    private Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){
-
-        for(Restaurant restaurant: restaurants){
-
-            if (Arrays.asList(restaurant.menu()).contains(validatedOrder.getPizzasInOrder()[0])){
-                return restaurant;
-            }
-        }
-
-        return null;
-
-    }
-
+    /**
+     * Writes deliveries to json, flight paths to json and drone flight coordinates to geojson files using WriteFiles class.
+     *
+     * @throws IOException If there is an issue writing files.
+     */
     public void filesWriter() throws IOException {
         WriteFiles writeFiles = new WriteFiles(getValidDeliveries(), orderDate, getFlightPaths());
         writeFiles.writeDeliveries();
         writeFiles.writeFlightPath();
-        writeFiles.writeGeoJson();
+        writeFiles.writeDrone();
     }
 }

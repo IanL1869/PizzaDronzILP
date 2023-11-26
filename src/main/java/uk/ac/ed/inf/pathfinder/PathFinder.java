@@ -1,5 +1,5 @@
 package uk.ac.ed.inf.pathfinder;
-import uk.ac.ed.inf.handler.LongLatHandle;
+import uk.ac.ed.inf.handler.LngLatHandle;
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
 import uk.ac.ed.inf.ilp.data.NamedRegion;
@@ -15,7 +15,7 @@ public class PathFinder {
     /**
      * The handle for longitude and latitude calculations.
      */
-    private final LongLatHandle LLhandle = new LongLatHandle();
+    private final LngLatHandle LLhandle = new LngLatHandle();
 
     /**
      * The order number associated with the order that the path is being calculated for.

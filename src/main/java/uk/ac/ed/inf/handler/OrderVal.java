@@ -13,15 +13,31 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashSet;
 
+/**
+ * The OrderVal class implements the OrderValidation interface and provides methods
+ * for validating orders based on various parameters.
+ */
 public class OrderVal implements OrderValidation {
 
-    private boolean checkCardDigits(Order orderToValidate){
+    /**
+     * Checks whether the credit card number associated with the order has 16 digits.
+     *
+     * @param orderToValidate The order to be validated.
+     * @return True if the credit card has 16 digits, false otherwise.
+     */
+    private boolean checkCardNumber(Order orderToValidate){
 
         // return whether card has 16 digits
         return orderToValidate.getCreditCardInformation().getCreditCardNumber().matches("\\d{16}");
 
     }
 
+    /**
+     * Checks whether the credit card expiry date is in the correct format and not expired.
+     *
+     * @param orderToValidate The order to be validated.
+     * @return True if the expiry date is in the correct format and not expired, false otherwise.
+     */
     private boolean checkExpDate(Order orderToValidate){
 
         // Define desired format
@@ -50,6 +66,12 @@ public class OrderVal implements OrderValidation {
         return false;
     }
 
+    /**
+     * Checks whether the credit card CVV has 3 digits.
+     *
+     * @param orderToValidate The order to be validated.
+     * @return True if the CVV has 3 digits, false otherwise.
+     */
     private boolean checkCVV(Order orderToValidate){
 
         // returns if 3 digits or not
@@ -57,6 +79,13 @@ public class OrderVal implements OrderValidation {
 
     }
 
+    /**
+     * Checks whether the total price in the order matches the sum of pizza prices
+     * minus the delivery charge.
+     *
+     * @param orderToValidate The order to be validated.
+     * @return True if the total price is correct, false otherwise.
+     */
     private boolean checkTotal(Order orderToValidate){
 
         // for loop to count the price of all pizzas in order
@@ -77,7 +106,14 @@ public class OrderVal implements OrderValidation {
 
     }
 
-    private boolean checkPizzaDef(Restaurant[] restaurant ,Order orderToValidate){
+    /**
+     * Checks whether each pizza in the order is defined on at least one restaurant's menu.
+     *
+     * @param restaurant      The array of defined restaurants.
+     * @param orderToValidate The order to be validated.
+     * @return True if all pizzas are defined, false otherwise.
+     */
+    private boolean checkPizzaDef(Restaurant[] restaurant,Order orderToValidate){
 
         boolean flag = true;
 
@@ -110,23 +146,35 @@ public class OrderVal implements OrderValidation {
 
     }
 
+    /**
+     * Checks whether the order has more than the defined constant number of pizzas.
+     *
+     * @param orderToValidate The order to be validated.
+     * @return True if the number of pizzas is within the limit, false otherwise.
+     */
     private boolean checkMaxPizza(Order orderToValidate){
 
-        // check that there is no more than 4 pizzas in given order
+        // check that there is no more than the defined constant number of pizzas in given order
         return orderToValidate.getPizzasInOrder().length <= SystemConstants.MAX_PIZZAS_PER_ORDER;
 
     }
 
-
-    private boolean checkMultiRestaurants(Restaurant[] restaurant, Order orderToValidate) {
+    /**
+     * Checks whether all pizzas in the order are available at the same restaurant.
+     *
+     * @param restaurants      The array of defined restaurants.
+     * @param orderToValidate  The order to be validated.
+     * @return True if all pizzas are available at the same restaurant, false otherwise.
+     */
+    private boolean checkMultiRestaurants(Restaurant[] restaurants, Order orderToValidate) {
 
         boolean flag = false;
 
         // loop through all restaurants
-        for (Restaurant value : restaurant) {
+        for (Restaurant restaurant : restaurants) {
 
             // check that a restaurant menu contains ALL pizzas from one order
-            if (new HashSet<>(Arrays.asList(value.menu())).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
+            if (new HashSet<>(Arrays.asList(restaurant.menu())).containsAll(Arrays.asList(orderToValidate.getPizzasInOrder()))) {
 
                 flag = true;    // update flag and break loop if condition is met as we have found the restaurant
                 break;
@@ -139,7 +187,14 @@ public class OrderVal implements OrderValidation {
 
     }
 
-    private boolean checkRestaurantClosure(Restaurant[] restaurant, Order orderToValidate){
+    /**
+     * Checks whether the restaurant associated with the order is open on the day the order is placed.
+     *
+     * @param restaurants      The array of defined restaurants.
+     * @param orderToValidate  The order to be validated.
+     * @return True if the restaurant is open on the order day, false otherwise.
+     */
+    private boolean checkRestaurantClosure(Restaurant[] restaurants, Order orderToValidate){
 
         // get the day of week that an order is placed
         DayOfWeek dayOfOrder = orderToValidate.getOrderDate().getDayOfWeek();
@@ -147,14 +202,14 @@ public class OrderVal implements OrderValidation {
         boolean flag = false;
 
         // loop through all restaurants
-        for (Restaurant value : restaurant) {
+        for (Restaurant restaurant : restaurants) {
 
             // nested loop to go through all pizzas in order
             for (int j = 0; j < orderToValidate.getPizzasInOrder().length; j++) {
 
-                if (Arrays.asList(value.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
+                if (Arrays.asList(restaurant.menu()).contains(orderToValidate.getPizzasInOrder()[j])) {
 
-                    DayOfWeek[] daysOpen = value.openingDays(); // get array that shows weekdays open for restaurant that has that pizza
+                    DayOfWeek[] daysOpen = restaurant.openingDays(); // get array that shows weekdays open for restaurant that has that pizza
 
                     if (Arrays.asList(daysOpen).contains(dayOfOrder)) {
 
@@ -172,11 +227,39 @@ public class OrderVal implements OrderValidation {
 
     }
 
+    /**
+     * Retrieves the restaurant associated with the first pizza in the validated order.
+     * Method is ONLY to be used on orders which are validated.
+     *
+     * @param validatedOrder   The validated order.
+     * @param restaurants      The array of defined restaurants.
+     * @return The restaurant associated with the first pizza on a valid order. Or null if not found.
+     */
+    public Restaurant getRestaurant(Order validatedOrder, Restaurant[] restaurants){
+
+        for(Restaurant restaurant: restaurants){
+
+            if (Arrays.asList(restaurant.menu()).contains(validatedOrder.getPizzasInOrder()[0])){
+                return restaurant;
+            }
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Validates the given order based on various criteria and updates its status and validation code accordingly.
+     *
+     * @param orderToValidate    The order to be validated.
+     * @param definedRestaurants The array of defined restaurants.
+     * @return The validated order with updated status and validation code.
+     */
     @Override
     public Order validateOrder(Order orderToValidate, Restaurant[] definedRestaurants) {
 
         // go through all functions and check for each error. If that error is raised update the corresponding OrderValidationCode and OrderStatus.
-        if(!checkCardDigits(orderToValidate)){
+        if(!checkCardNumber(orderToValidate)){
             
             orderToValidate.setOrderStatus(OrderStatus.INVALID);
             orderToValidate.setOrderValidationCode(OrderValidationCode.CARD_NUMBER_INVALID);
