@@ -49,7 +49,7 @@ public class RestClient {
      */
     public Restaurant[] getRestaurants(){
 
-        Restaurant[] restaurant_list;
+        Restaurant[] restaurant_list = null;
 
         // read in restaurants.
         try {
@@ -57,7 +57,8 @@ public class RestClient {
             restaurant_list = mapper.readValue(new URL(baseURL + "/restaurants"), Restaurant[].class);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Cannot get restaurants from the Rest Service. Please enter the correct base URL.");
+            System.exit(1);
         }
 
         return restaurant_list;
@@ -74,14 +75,17 @@ public class RestClient {
 
         // needed for reading in orders on a given date.
         mapper.registerModule(new JavaTimeModule());
-        Order[] ordersOnDate;
+        Order[] ordersOnDate = null;
 
         // read in orders on the given date.
         try {
             ordersOnDate = mapper.readValue(new URL(baseURL + "/orders" + "/" + orderDate), Order[].class);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Cannot get orders on the given date from the Rest Service. Please enter the correct base URL.");
+            System.exit(1);
+
+
         }
 
         return ordersOnDate;
@@ -98,7 +102,7 @@ public class RestClient {
      */
     public NamedRegion getCentralArea(){
 
-        NamedRegion centralArea;
+        NamedRegion centralArea = null;
 
         // read in centralArea on the given date.
         try {
@@ -106,7 +110,8 @@ public class RestClient {
 
         } catch (IOException e) {
 
-            throw new RuntimeException(e);
+            System.out.println("Cannot get central area from the Rest Service. Please enter the correct base URL.");
+            System.exit(1);
         }
 
         return centralArea;
@@ -122,7 +127,7 @@ public class RestClient {
      */
     public NamedRegion[] getNoFlyZones(){
 
-        NamedRegion[] noFlyZones;
+        NamedRegion[] noFlyZones = null;
 
         // read in no-fly zones.
         try {
@@ -130,7 +135,8 @@ public class RestClient {
 
         } catch (IOException e) {
 
-            throw new RuntimeException(e);
+            System.out.println("Cannot get the no-fly zones from the Rest Service. Please enter the correct base URL.");
+            System.exit(1);
         }
 
         return noFlyZones;

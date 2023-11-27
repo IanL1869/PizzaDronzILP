@@ -44,7 +44,7 @@ public class AppTest extends TestCase
     public void testMainMethodOutput() throws IOException {
         // Define the test input parameters
         String date = "2023-09-18";
-        String url = "https://ilp-rest.azurewebsites.net";
+        String url = "https://ilp-rest.azurewebsites.net.com";
 
         // Define the expected output file names
         String deliveriesFileName = "drone-2023-09-01.json";

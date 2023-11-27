@@ -66,7 +66,8 @@ public class WriteFiles {
             mapper.writeValue(new FileWriter(file), flightpathsJSON);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Cannot write flightpath data to file flightpath-YYYY-MM-DD.json.");
+            System.exit(1);
         }
     }
 
@@ -82,7 +83,8 @@ public class WriteFiles {
             mapper.writeValue(new FileWriter(file), deliveriesJSON);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Cannot write deliveries data to file deliveries-YYYY-MM-DD.json.");
+            System.exit(1);
         }
 
     }
@@ -134,7 +136,8 @@ public class WriteFiles {
             mapper.writeValue(new FileWriter(file), featureCollection);
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Cannot write drone data to file drone-YYYY-MM-DD.geojson.");
+            System.exit(1);
         }
 
     }

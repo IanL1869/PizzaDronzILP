@@ -35,12 +35,12 @@ public class App {
             new URL(baseURL);
 
         }catch (DateTimeParseException e){
-            System.out.println("Input Date is invalid.");
-            throw new RuntimeException(e);
+            System.out.println("Input Date is invalid. Please enter a valid date of the format YYYY-MM-DD.");
+            System.exit(1);
 
         }catch (MalformedURLException e){
             System.out.println("Given URL is invalid.");
-            throw new RuntimeException(e);
+            System.exit(1);
 
         }
 
