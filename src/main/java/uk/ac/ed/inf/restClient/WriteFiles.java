@@ -24,7 +24,7 @@ public class WriteFiles {
     /**
      * The order date for which files are being written.
      */
-    private String orderDate;
+    private final String orderDate;
 
     /**
      * List of delivery information to be written.

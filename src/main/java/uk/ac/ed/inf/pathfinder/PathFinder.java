@@ -1,4 +1,5 @@
 package uk.ac.ed.inf.pathfinder;
+
 import uk.ac.ed.inf.handler.LngLatHandle;
 import uk.ac.ed.inf.ilp.constant.SystemConstants;
 import uk.ac.ed.inf.ilp.data.LngLat;
@@ -114,8 +115,6 @@ public class PathFinder {
 
             // condition when destination is reached
             if (lngLatHandle.isCloseTo(currentPoint.getLngLat(), end)) {
-                returningToAppleton = false;
-                returnedToCentralArea = false;
                 return reconstructPath(currentPoint);
             }
 
@@ -171,7 +170,7 @@ public class PathFinder {
             LngLat neighbourLngLat = lngLatHandle.nextPosition(currentLngLat, angle);
 
             // if the neighbour is valid add it to the list.
-            if (validateNeighbour(neighbourLngLat, currentLngLat)){
+            if (checkNeighbour(neighbourLngLat, currentLngLat)){
 
                 Point neighbour = new Point(angle, neighbourLngLat, currentPoint, currentPoint.getgScore() + SystemConstants.DRONE_MOVE_DISTANCE, lngLatHandle.distanceTo(neighbourLngLat, end), orderNo);
                 neighbours.add(neighbour);
@@ -213,12 +212,11 @@ public class PathFinder {
      * @param currentLngLat The current point's longitude and latitude.
      * @return True if neighbour is valid, false otherwise.
      */
-    private boolean validateNeighbour(LngLat neighbourLngLat, LngLat currentLngLat){
+    private boolean checkNeighbour(LngLat neighbourLngLat, LngLat currentLngLat){
 
         // loop through all no-fly zones and check if the neighbour is in one.
         for (NamedRegion noFlyZone : noFlyZones){
             if (lngLatHandle.isInRegion(neighbourLngLat, noFlyZone)){
-
                 return false;
             }
         }

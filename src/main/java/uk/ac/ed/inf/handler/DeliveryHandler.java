@@ -25,7 +25,7 @@ public class DeliveryHandler {
     /**
      * The date for which orders are being processed.
      */
-    private String orderDate;
+    private final String orderDate;
 
     /**
      * The RestClient responsible for making API requests.
