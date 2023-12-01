@@ -9,12 +9,19 @@ import uk.ac.ed.inf.ilp.data.*;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
-
+/**
+ * The OrderTests class contains JUnit tests for validating various scenarios in the Order class.
+ */
 public class OrderTests extends TestCase{
 
     private Restaurant[] definedRestaurants;
     private OrderVal orderValidator;
 
+    /**
+     * Initialises test data before each test method execution.
+     *
+     * @throws Exception If there is an issue setting up the test.
+     */
     protected void setUp() throws Exception {
         super.setUp();
         definedRestaurants = new Restaurant[] {
@@ -29,6 +36,9 @@ public class OrderTests extends TestCase{
         orderValidator = new OrderVal();
     }
 
+    /**
+     * Tests the validation for a credit card number that is too short.
+     */
     public void testCardNumberTooShort() {
 
         Order order = new Order("1",
@@ -47,6 +57,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CARD_NUMBER_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests the validation for a credit card number that is too long.
+     */
     public void testCardNumberTooLong() {
 
         Order order = new Order("1",
@@ -65,6 +78,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CARD_NUMBER_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests the validation for a credit card number that is wrong type.
+     */
     public void testCardNumberWrongType() {
 
         Order order = new Order("1",
@@ -83,6 +99,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CARD_NUMBER_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests expiry date with an invalid month.
+     */
     public void testExpiryDateMonth(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -98,6 +117,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.EXPIRY_DATE_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests expiry date with an invalid year.
+     */
     public void testExpiryDateYear(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -113,6 +135,28 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.EXPIRY_DATE_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests expiry date with an expiry date before the order date.
+     */
+    public void testExpiryDateInvalid(){
+        Order order = new Order("1",
+                LocalDate.of(2023, 11, 3),
+                OrderStatus.UNDEFINED,
+                OrderValidationCode.UNDEFINED,
+                1100,
+                new Pizza[] {new Pizza("Margarita", 1000)},
+                null);
+        order.setCreditCardInformation(new CreditCardInformation("2728338838383838",
+                "10/23",
+                "123"));
+        Order orderInvalidCardNumber = orderValidator.validateOrder(order, definedRestaurants);
+        assertEquals(OrderValidationCode.EXPIRY_DATE_INVALID, orderInvalidCardNumber.getOrderValidationCode());
+    }
+
+
+    /**
+     * Tests CVV that is too short.
+     */
     public void testCVVTooShort(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -128,6 +172,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CVV_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests CVV that is too long.
+     */
     public void testCVVTooLong(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -143,6 +190,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CVV_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests CVV that is wrong type.
+     */
     public void testCVVWrongType(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -158,6 +208,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.CVV_INVALID, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests total being too much.
+     */
     public void testTotalTooMuch(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -173,6 +226,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.TOTAL_INCORRECT, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests total being too little.
+     */
     public void testTotalTooLittle(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -188,6 +244,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderValidationCode.TOTAL_INCORRECT, orderInvalidCardNumber.getOrderValidationCode());
     }
 
+    /**
+     * Tests pizza is undefined.
+     */
     public void testPizzaUndefined(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -206,6 +265,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderStatus.INVALID, orderInvalidType.getOrderStatus());
     }
 
+    /**
+     * Tests too many pizzas.
+     */
     public void testMaxPizzaExceeded(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -228,6 +290,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderStatus.INVALID, orderInvalidType.getOrderStatus());
     }
 
+    /**
+     * Tests pizzas from more than one restaurant.
+     */
     public void testPizzaFromMultiple(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 3),
@@ -247,7 +312,9 @@ public class OrderTests extends TestCase{
         assertEquals(OrderStatus.INVALID, orderInvalidType.getOrderStatus());
     }
 
-
+    /**
+     * Tests when restaurant is closed.
+     */
     public void testRestaurantClosed(){
         Order order = new Order("1",
                 LocalDate.of(2023, 11, 2),

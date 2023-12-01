@@ -11,8 +11,6 @@ import uk.ac.ed.inf.restClient.FlightpathJSON;
 import uk.ac.ed.inf.restClient.RestClient;
 import uk.ac.ed.inf.restClient.WriteFiles;
 
-import java.io.IOException;
-
 import java.util.*;
 
 /**
@@ -50,16 +48,16 @@ public class DeliveryHandler {
     /**
      * Constructs a DeliveryHandler object.
      *
-     * @param baseURL   The base URL for making API requests.
+     * @param restClient   The rest client to interact with Rest Server.
      * @param orderDate The date for which day orders are being processed.
      */
-    public DeliveryHandler(String baseURL, String orderDate){
+    public DeliveryHandler(RestClient restClient, String orderDate){
         this.orderDate = orderDate;
-        this.restClient = new RestClient(baseURL, orderDate);
+        this.restClient = restClient;
     }
 
     /**
-     * Retrieves a list of valid orders by validating orders and setting their status to DELIVERED.
+     * Retrieves a list of valid orders by validating orders.
      *
      * @return A list of valid orders for the order date.
      */
@@ -85,25 +83,34 @@ public class DeliveryHandler {
     }
 
     /**
-     * Retrieves a list of validated deliveries based on valid orders.
+     * Retrieves a list of deliveries based on orders. Updates deliveries to delivered if order is valid.
      *
-     * @return A list of validated deliveries in JSON format.
-     * @throws IOException If there is an issue with the RestClient.
+     * @return A list of deliveries in JSON format.
      */
-    public List<DeliveriesJSON> getValidDeliveries() throws IOException {
+    public List<DeliveriesJSON> getDeliveries(){
 
-        // get a list of all valid orders.
-        List<Order> validOrders = getValidOrders();
-        List<DeliveriesJSON> validatedDeliveries = new ArrayList<>();
+        // get a list of all orders.
+        Order[] orders = restClient.getOrdersOnDate();
+        List<DeliveriesJSON> deliveries = new ArrayList<>();
+        Restaurant[] restaurants = restClient.getRestaurants();
 
-        // loop through all the valid orders set their status to delivered and add them as a DeliveriesJSON object to a list.
-        for (Order validOrder : validOrders) {
-            validOrder.setOrderStatus(OrderStatus.DELIVERED);
-            DeliveriesJSON orderJSON = new DeliveriesJSON(validOrder.getOrderNo(), validOrder.getOrderStatus().toString(), validOrder.getOrderValidationCode().toString(), validOrder.getPriceTotalInPence());
-            validatedDeliveries.add(orderJSON);
+        // loop through all the orders.
+        for (Order order : orders) {
+            // validate
+            orderVal.validateOrder(order, restaurants);
+
+            // set delivered if no error.
+            if (order.getOrderValidationCode().equals(OrderValidationCode.NO_ERROR) && order.getOrderStatus().equals(OrderStatus.VALID_BUT_NOT_DELIVERED)){
+                order.setOrderStatus(OrderStatus.DELIVERED);
+            }
+            // add all order to deliveries in correct format.
+            DeliveriesJSON orderJSON = new DeliveriesJSON(order.getOrderNo(), order.getOrderStatus().toString(), order.getOrderValidationCode().toString(), order.getPriceTotalInPence());
+            deliveries.add(orderJSON);
+
+
         }
 
-        return validatedDeliveries;
+        return deliveries;
     }
 
 
@@ -111,11 +118,11 @@ public class DeliveryHandler {
      * Retrieves flight paths for valid orders by calculating paths to the restaurant and for the path when returning to Appleton Tower.
      *
      * @return A list of flight paths in JSON format.
-     * @throws IOException If there is an issue with the RestClient.
      */
-    public List<FlightpathJSON> getFlightPaths() throws IOException {
+    public List<FlightpathJSON> getFlightPaths() {
 
         // get the list of valid orders and get the data needed for writing flight paths.
+
         List<Order> validOrders = getValidOrders();
         Restaurant[] restaurants = restClient.getRestaurants();
         NamedRegion[] noFlyZones = restClient.getNoFlyZones();
@@ -183,11 +190,9 @@ public class DeliveryHandler {
 
     /**
      * Writes deliveries to json, flight paths to json and drone flight coordinates to geojson files using WriteFiles class.
-     *
-     * @throws IOException If there is an issue writing files.
      */
-    public void filesWriter() throws IOException {
-        WriteFiles writeFiles = new WriteFiles(getValidDeliveries(), orderDate, getFlightPaths());
+    public void filesWriter() {
+        WriteFiles writeFiles = new WriteFiles(getDeliveries(), orderDate, getFlightPaths());
         writeFiles.writeDeliveries();
         writeFiles.writeFlightPath();
         writeFiles.writeDrone();

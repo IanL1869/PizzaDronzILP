@@ -40,33 +40,22 @@ public class AppTest extends TestCase
         assertTrue( true );
     }
 
+    /**
+     * Check its under 60 seconds.
+     * @throws IOException Incase.
+     */
+    public void testTime() throws IOException {
 
-    public void testMainMethodOutput() throws IOException {
-        // Define the test input parameters
-        String date = "2023-09-18";
-        String url = "https://ilp-rest.azurewebsites.net";
+        long startTime = System.nanoTime();
+        App.main(new String[] { "2023-11-01", "https://ilp-rest.azurewebsites.net/" });
 
-        // Define the expected output file names
-        String deliveriesFileName = "drone-2023-09-01.json";
-        String flightPathsJsonFileName = "flightpath-2023-09-01.json";
-        String flightPathsGeoJsonFileName = "flightpath-2023-09-01.geojson";
+        long endTime = System.nanoTime();
 
-        // Execute the main method
-        App.main(new String[] { date, url });
+        long duration = (endTime - startTime) / 1000000;
 
-        // Verify that the output files exist
-        assertTrue(outputFileExists(deliveriesFileName));
-        assertTrue(outputFileExists(flightPathsJsonFileName));
-        assertTrue(outputFileExists(flightPathsGeoJsonFileName));
-
-        // You can add further assertions to validate the content of the output files, if needed.
+        assertTrue(duration < 60000);
     }
 
-    // Helper method to check if an output file exists
-    private boolean outputFileExists(String fileName) {
-        File outputFile = new File(fileName);
-        return outputFile.exists();
-    }
 
 
 

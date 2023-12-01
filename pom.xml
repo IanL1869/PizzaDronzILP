@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jsr310</artifactId>
-      <version>2.13.0</version>
+      <version>2.15.2</version>
     </dependency>
 
     <dependency>
@@ -48,58 +48,69 @@
     </dependency>
 
     <dependency>
-      <groupId>com.mapbox.mapboxsdk</groupId>
-      <artifactId>mapbox-sdk-geojson</artifactId>
-      <version>3.0.1</version>
+      <groupId>uk.ac.ed.inf.ilp</groupId>
+      <artifactId>IlpDataObjects</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+      <scope>compile</scope>
+<!--            <systemPath>${project.basedir}/IlpDataObjects.jar</systemPath>-->
     </dependency>
 
 
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>uk.ac.ed.inf.App</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>2.3.1</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-            <configuration>
-              <groupId>uk.ac.ed.inf</groupId>
-              <artifactId>IlpDataObjects</artifactId>
-              <version>1.0.0-SNAPSHOT</version>
-              <packaging>jar</packaging>
-              <file>${project.basedir}\libraries\IlpDataObjects.jar</file>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-</project>
+<build>
+<plugins>
+  <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jar-plugin</artifactId>
+    <version>3.0.2</version>
+    <configuration>
+      <archive>
+        <manifest>
+          <addClasspath>true</addClasspath>
+          <mainClass>uk.ac.ed.inf.App</mainClass>
+        </manifest>
+      </archive>
+    </configuration>
+  </plugin>
 
-
+  <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <version>3.4.1</version>
+    <executions>
+      <execution>
+        <phase>package</phase>
+        <goals>
+          <goal>shade</goal>
+        </goals>
+      </execution>
+    </executions>
+    <configuration>
+      <outputFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</outputFile>
+    </configuration>
+  </plugin>
+  <!--            installing the maven install plugin-->
+  <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-install-plugin</artifactId>
+    <version>3.1.0</version>
+    <executions>
+      <execution>
+        <phase>clean</phase>
+        <goals>
+          <goal>install-file</goal>
+        </goals>
+        <configuration>
+          <file>${project.basedir}/IlpDataObjects.jar</file>
+          <groupId>uk.ac.ed.inf.ilp</groupId>
+          <artifactId>IlpDataObjects</artifactId>
+          <version>1.0.0-SNAPSHOT</version>
+          <packaging>jar</packaging>
+        </configuration>
+      </execution>
+    </executions>
+  </plugin>
+</plugins>
+</build>
+        </project>

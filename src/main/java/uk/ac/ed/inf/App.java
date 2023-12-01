@@ -1,6 +1,8 @@
 package uk.ac.ed.inf;
 
 import uk.ac.ed.inf.handler.DeliveryHandler;
+import uk.ac.ed.inf.restClient.RestClient;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,6 +25,11 @@ public class App {
      */
     public static void main(String[] args ) throws IOException {
 
+        // check for argument length
+        if(args.length != 2){
+            System.err.println("Wrong number of arguments. Please enter 2 arguments.");
+            System.exit(1);
+        }
         // arguments.
         String orderDate = args[0];
         String baseURL = args[1];
@@ -35,17 +42,23 @@ public class App {
             new URL(baseURL);
 
         }catch (DateTimeParseException e){
-            System.out.println("Input Date is invalid. Please enter a valid date of the format YYYY-MM-DD.");
+            System.err.println("Input Date is invalid. Please enter a valid date of the format YYYY-MM-DD.");
             System.exit(1);
 
         }catch (MalformedURLException e){
-            System.out.println("Given URL is invalid.");
+            System.err.println("Given URL is invalid.");
             System.exit(1);
 
         }
-
-        // call the delivery handler and write the files.
-        DeliveryHandler deliveryHandler = new DeliveryHandler(baseURL, orderDate);
-        deliveryHandler.filesWriter();
+        // initialise Rest Client and check Rest Service is alive.
+        RestClient restClient = new RestClient(baseURL, orderDate);
+        if (restClient.getIsAlive()) {
+            // call the delivery handler and write the files.
+            DeliveryHandler deliveryHandler = new DeliveryHandler(restClient, orderDate);
+            deliveryHandler.filesWriter();
+        }else{
+            System.err.println("Rest Service is Dead.");
+            System.exit(1);
+        }
     }
 }

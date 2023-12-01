@@ -222,8 +222,10 @@ public class PathFinder {
         }
 
         // if the current coordinate is in the central area update the boolean that tracks this.
-        if (lngLatHandle.isInRegion(currentLngLat, centralArea)){
-            returnedToCentralArea = true;
+        if(centralArea != null) {
+            if (lngLatHandle.isInRegion(currentLngLat, centralArea)) {
+                returnedToCentralArea = true;
+            }
         }
 
         // if the path is on the return to Appleton and has returned to the central area then the

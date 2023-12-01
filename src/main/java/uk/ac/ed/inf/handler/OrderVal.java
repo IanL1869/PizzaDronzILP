@@ -55,11 +55,7 @@ public class OrderVal implements OrderValidation {
             // Take date to be at the end of the month
             LocalDate expDateEndofMonth = parsedExpDate.atEndOfMonth();
 
-            // get today's date
-            LocalDate currentDate = LocalDate.now();
-
-
-            return !expDateEndofMonth.isBefore(currentDate);
+            return !expDateEndofMonth.isBefore(orderToValidate.getOrderDate());
 
         }
 

@@ -10,23 +10,34 @@ import uk.ac.ed.inf.ilp.data.NamedRegion;
 import uk.ac.ed.inf.ilp.interfaces.LngLatHandling;
 
 
-
+/**
+ * The LngLatTests class contains JUnit tests for validating various scenarios in the LngLatHandling class.
+ */
 public class LngLatTests extends TestCase {
+
+    /** An array of LngLat objects representing a sample rectangle. */
 
     public static LngLat[] sampleRectangle;
 
-
+    /**
+     * Initialises test data before each test method execution.
+     *
+     * @throws Exception If there is an issue setting up the test.
+     */
     protected void setUp() throws Exception {
         super.setUp();
-        LngLat p1 = new LngLat(55.943067559235686, -3.1893342007830086);
-        LngLat p2 = new LngLat(55.94219537835775, -3.1893342007830086);
-        LngLat p3 = new LngLat(55.94219537835775, -3.1853658189387204);
-        LngLat p4 = new LngLat(55.943067559235686, -3.1853658189387204);
+        LngLat vertex1 = new LngLat(55.943067559235686, -3.1893342007830086);
+        LngLat vertex2 = new LngLat(55.94219537835775, -3.1893342007830086);
+        LngLat vertex3 = new LngLat(55.94219537835775, -3.1853658189387204);
+        LngLat vertex4 = new LngLat(55.943067559235686, -3.1853658189387204);
 
-        sampleRectangle = new LngLat[]{p1,p2,p3,p4};
+        sampleRectangle = new LngLat[]{vertex1,vertex2,vertex3,vertex4};
 
     }
 
+    /**
+     * Tests the calculation of distance between two LngLat positions.
+     */
     public void testDistanceTo(){
         LngLat startPosition = new LngLat(1.68687,1.5777474);
         LngLat endPosition = new LngLat(4.848484,5.92992);
@@ -34,7 +45,9 @@ public class LngLatTests extends TestCase {
         double result = lngLatHandler.distanceTo(startPosition, endPosition);
         assertEquals(5.379331689456113, result);
     }
-
+    /**
+     * Tests very close positions.
+     */
     public void testIsCloseToVeryClose() {
         LngLatHandle lngLatHandling = new LngLatHandle();
 
@@ -44,6 +57,9 @@ public class LngLatTests extends TestCase {
         assertTrue(lngLatHandling.isCloseTo(lngLat1, lngLat2));
     }
 
+    /**
+     * Tests is close to same point.
+     */
     public void testIsCloseToSame() {
         LngLatHandle lngLatHandling = new LngLatHandle();
 
@@ -53,6 +69,9 @@ public class LngLatTests extends TestCase {
         assertTrue(lngLatHandling.isCloseTo(lngLat1, lngLat2));
     }
 
+    /**
+     * Tests the calculation of the next LngLat position based on a given angle.
+     */
     public void testNextPosition(){
 
         LngLatHandle lngLatHandling = new LngLatHandle();
@@ -65,6 +84,9 @@ public class LngLatTests extends TestCase {
 
     }
 
+    /**
+     * Tests LngLat position is within a region.
+     */
     public void testIsInRegion() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -74,6 +96,9 @@ public class LngLatTests extends TestCase {
         assertTrue(result);
     }
 
+    /**
+     * Tests LngLat position on right edge is within a region.
+     */
     public void testIsInRegionR() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -83,6 +108,9 @@ public class LngLatTests extends TestCase {
         assertTrue(result);
     }
 
+    /**
+     * Tests LngLat position on left edge is within a region.
+     */
     public void testIsInRegionL() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -92,6 +120,9 @@ public class LngLatTests extends TestCase {
         assertTrue(result);
     }
 
+    /**
+     * Tests LngLat position on upper edge is within a region.
+     */
     public void testIsInRegionU() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -101,6 +132,9 @@ public class LngLatTests extends TestCase {
         assertTrue(result);
     }
 
+    /**
+     * Tests LngLat position on bottom edge is within a region.
+     */
     public void testIsInRegionD() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -110,6 +144,9 @@ public class LngLatTests extends TestCase {
         assertTrue(result);
     }
 
+    /**
+     * Tests LngLat position on vertex is within a region.
+     */
     public void testIsInRegionVertex() {
         LngLatHandling lngLatHandler = new LngLatHandle();
         NamedRegion region = new NamedRegion("test", sampleRectangle);
@@ -118,12 +155,5 @@ public class LngLatTests extends TestCase {
         boolean result = lngLatHandler.isInRegion(position, region);
         assertTrue(result);
     }
-
-
-
-
-
-
-
 
 }
