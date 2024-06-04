@@ -4,7 +4,7 @@ This is my implementation of the informatics large practical (ILP) coursework at
 
 ## Task at hand
 
-To find and calculate a dron path from a start point to an end point while validating orders as they came in.
+To find and calculate a drone path from a start point to an end point while validating orders as they came in.
 
 ## Results
 
